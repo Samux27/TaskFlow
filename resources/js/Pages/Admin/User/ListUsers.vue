@@ -110,6 +110,8 @@
 
       responsive: true,
       language: {
+        search: "Buscar:",
+        
         zeroRecords: "No se encontraron usuarios",
        
       }
