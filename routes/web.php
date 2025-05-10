@@ -57,9 +57,7 @@ Route::middleware([
     });
 
     // Ruta para crear un usuario, accesible solo por administradores
-    Route::get('/user/create', function () {
-        return Inertia::render('Admin/User/CreateUser'); // Este es el componente Vue que se renderiza
-    })->middleware(['role_or_permission:admin']);
+    
 });
 
 // Rutas de autenticación (por ejemplo, login, registro, etc.)

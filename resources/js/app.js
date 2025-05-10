@@ -6,7 +6,8 @@ import { Link } from '@inertiajs/vue3';  // InertiaLink para navegación
 import '../css/app.css';  // Importar estilos CSS globales
 import '../js/bootstrap';  // Importar bootstrap para funcionalidades JS
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';  // Usar nombre de aplicación desde VITE
-
+import Toast from 'vue-toastification'
+import 'vue-toastification/dist/index.css'
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,  // Título dinámico
     resolve: (name) => {
@@ -24,6 +25,14 @@ createInertiaApp({
 
         app.use(plugin)  // Usar plugin de Inertia
             .use(ZiggyVue)  // Usar ZiggyVue para las rutas
+            .use(Toast, {
+                position: 'top-right',
+                timeout: 3000,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                hideProgressBar: false,
+            })
             .mount(el);  // Montar la aplicación en el DOM
     },
     progress: {

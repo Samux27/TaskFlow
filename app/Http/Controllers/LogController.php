@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Log;
+use Inertia\Inertia;
 
 class LogController extends Controller
 {
@@ -11,9 +13,14 @@ class LogController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        //
-    }
+{
+    
+    $logs = Log::with('user')->orderBy('created_at', 'desc')->get();
+    
+    return Inertia::render('Admin/Log/ListLogs', [
+        'logs' => $logs
+    ]);
+}
 
     /**
      * Show the form for creating a new resource.

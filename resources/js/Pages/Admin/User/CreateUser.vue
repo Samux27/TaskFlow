@@ -21,8 +21,7 @@
                 v-model="form.name"
                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
-              <!-- Mostrar error si el campo está vacío o tiene un error -->
-              <span v-if="errors.name" class="text-sm text-red-500">{{ errors.name[0] }}</span>
+              <span v-if="errores.name" class="text-sm text-red-500">{{ errores.name }}</span>
             </div>
 
             <!-- Apellido -->
@@ -34,7 +33,7 @@
                 v-model="form.surname"
                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
-              <span v-if="errors.surname" class="text-sm text-red-500">{{ errors.surname[0] }}</span>
+              <span v-if="errores.surname" class="text-sm text-red-500">{{ errores.surname }}</span>
             </div>
 
             <!-- Correo Electrónico -->
@@ -46,7 +45,7 @@
                 v-model="form.email"
                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
-              <span v-if="errors.email" class="text-sm text-red-500">{{ errors.email[0] }}</span>
+              <span v-if="errores.email" class="text-sm text-red-500">{{ errores.email }}</span>
             </div>
 
             <!-- DNI -->
@@ -56,9 +55,10 @@
                 type="text"
                 id="dni"
                 v-model="form.dni"
+                @input="form.dni = $event.target.value.toUpperCase()"
                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
-              <span v-if="errors.dni" class="text-sm text-red-500">{{ errors.dni[0] }}</span>
+              <span v-if="errores.dni" class="text-sm text-red-500">{{ errores.dni }}</span>
             </div>
 
             <!-- Contraseña -->
@@ -70,7 +70,7 @@
                 v-model="form.password"
                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
-              <span v-if="errors.password" class="text-sm text-red-500">{{ errors.password[0] }}</span>
+              <span v-if="errores.password" class="text-sm text-red-500">{{ errores.password }}</span>
             </div>
 
             <!-- Confirmar Contraseña -->
@@ -82,7 +82,7 @@
                 v-model="form.password_confirmation"
                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
-              <span v-if="errors.password_confirmation" class="text-sm text-red-500">{{ errors.password_confirmation[0] }}</span>
+              <span v-if="errores.password_confirmation" class="text-sm text-red-500">{{ errores.password_confirmation }}</span>
             </div>
 
             <!-- Selección de Rol -->
@@ -97,7 +97,7 @@
                 <option value="boss">Jefe</option>
                 <option value="employee">Empleado</option>
               </select>
-              <span v-if="errors.role" class="text-sm text-red-500">{{ errors.role[0] }}</span>
+              <span v-if="errores.role" class="text-sm text-red-500">{{ errores.role }}</span>
             </div>
 
             <!-- Botón -->
@@ -110,14 +110,13 @@
     </div>
   </AuthenticatedLayout>
 </template>
-
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
-import { Head, router, usePage } from '@inertiajs/vue3'
+import { Head, router } from '@inertiajs/vue3'
 import { ref } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 
-// Acceder a los errores de validación pasados desde el backend
-const { errors } = usePage().props
+const errores = ref({}) // NUEVO
 
 const form = ref({
   name: '',
@@ -127,13 +126,13 @@ const form = ref({
   password: '',
   password_confirmation: '',
   is_active: true,
-  role: 'employee', // Valor predeterminado
+  role: 'employee',
 })
 
 const success = usePage().props.flash?.success
 
 const createUser = () => {
-  router.post('/users', form.value, {
+  router.post('/user', form.value, {
     onSuccess: () => {
       form.value = {
         name: '',
@@ -143,8 +142,13 @@ const createUser = () => {
         password: '',
         password_confirmation: '',
         is_active: true,
-        role: 'employee', // Valor predeterminado
+        role: 'employee',
       }
+      errores.value = {} // Limpiar errores si todo va bien
+    },
+    onError: (error) => {
+      errores.value = error
+      
     },
   })
 }

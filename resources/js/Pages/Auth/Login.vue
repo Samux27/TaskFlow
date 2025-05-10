@@ -1,3 +1,4 @@
+
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-100">
     <div class="bg-white rounded-xl shadow-lg flex w-full max-w-4xl overflow-hidden">
@@ -50,6 +51,7 @@
 </template>
 
 <script setup>
+
 import { useForm } from '@inertiajs/vue3';
 
 const logoUrl = '/images/Logo TaskFlow.jpg';

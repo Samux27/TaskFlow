@@ -8,6 +8,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\Task;
+use App\Models\Comment;
+use App\Models\Log;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -19,10 +23,11 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',           // Nombre del usuario
+        'name',   
+        'surname',        // Nombre del usuario
         'email',          // Correo electrónico
         'password',       // Contraseña
-        'nif',            // Número de identificación fiscal
+        'dni',            // Número de identificación fiscal
         'is_active',      // Estado de activación del usuario
         'last_login',     // Fecha del último inicio de sesión
         'avatar',         // URL o ruta del avatar
@@ -58,6 +63,23 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comment::class);  // Relación con los comentarios del usuario
     }
-    
+    public function logs()
+    {
+        return $this->hasMany(Log::class);  // Relación con los registros de actividad del usuario
+    }
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);  // Alcance para filtrar usuarios activos
+    }
+    public function scopeInactive($query)
+    {
+        return $query->where('is_active', false);  // Alcance para filtrar usuarios inactivos
+    }
+    public function scopeWithRole($query, $role)
+    {
+        return $query->whereHas('roles', function ($q) use ($role) {
+            $q->where('name', $role);  // Alcance para filtrar usuarios por rol
+        });
+    }
     
 }
