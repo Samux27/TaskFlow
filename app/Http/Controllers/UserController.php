@@ -103,19 +103,22 @@ class UserController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit($id)
-{
+    {
+        $user = User::findOrFail($id);
     
-    $user = User::findOrFail($id);
-
-    return Inertia::render('Admin/User/EditUser', [
-        'user' => $user
-    ]);
-}
+        // Obtener el nombre del primer rol asignado
+        $user->role = $user->roles->pluck('name')->first();
+    
+        return Inertia::render('Admin/User/EditUser', [
+            'user' => $user
+        ]);
+    }
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, User $user)
 {
+    
     $validated = $request->validate([
         'name' => 'required|string|max:255',
         'surname' => 'required|string|max:255',
@@ -144,7 +147,7 @@ class UserController extends Controller
         'name' => 'Nombre',
         'surname' => 'Apellido',
         'email' => 'Email',
-        'is_active' => 'Activo',
+        'is_active' => 'Estado',
     ];
 
     foreach ($campos as $campo => $nombre) {

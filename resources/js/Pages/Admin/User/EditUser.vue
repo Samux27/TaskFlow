@@ -130,7 +130,7 @@ const form = ref({
     email: user.email || '',
     password: '',
     is_active: user.is_active,
-    role: user.role || 'employee',
+    role: user.role ,
     avatar: null,
     errors: {}
 })

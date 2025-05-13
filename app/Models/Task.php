@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Task extends Model
 {
+   public $timestamps = false; // Desactiva las marcas de tiempo automáticas si no las necesitas
     // Asignación masiva de campos
     protected $fillable = [
         'title',
@@ -50,8 +51,11 @@ class Task extends Model
     }
 
     // Si no estás usando created_at y updated_at, desactívalos
-    public $timestamps = true;  // Esto es opcional si no usas las fechas de creación y actualización
-
+      // Esto es opcional si no usas las fechas de creación y actualización
+    public function assignedUsers()
+    {
+        return $this->belongsToMany(User::class, 'task_user'); // Tabla pivot 'task_user'
+    }
     // Si deseas usar validación, puedes agregar reglas personalizadas aquí
     // public static function rules() {
     //     return [

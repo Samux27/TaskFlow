@@ -65,7 +65,7 @@
           <div class="w-1/3 flex items-center justify-center">
             <img
               v-if="selectedUser.avatar"
-              :src="`/storage/avatars/${selectedUser.avatar}`"
+              :src="`/storage/avatars/${$page.props.auth.user.avatar}`" 
               alt="Avatar"
               class="w-32 h-32 rounded-full border object-cover"
             />

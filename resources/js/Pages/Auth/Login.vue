@@ -1,5 +1,6 @@
 
 <template>
+   <Head title="Login " />
   <div class="min-h-screen flex items-center justify-center bg-gray-100">
     <div class="bg-white rounded-xl shadow-lg flex w-full max-w-4xl overflow-hidden">
       <!-- Imagen -->
@@ -53,7 +54,7 @@
 <script setup>
 
 import { useForm } from '@inertiajs/vue3';
-
+import { Head } from '@inertiajs/vue3';
 const logoUrl = '/images/Logo TaskFlow.jpg';
 
 const form = useForm({
@@ -70,10 +71,16 @@ const capitalizeDni = () => {
 const submit = () => {
   form.post(route('login'), {
     onError: () => {
-      console.log(form);
-      form.errors.dni = "Correo electrónico o contraseña incorrectos";
-      form.errors.password = "La contraseña es Obligatoria";
-    },
+  
+
+  if (!form.password) {
+    form.errors.password = "La contraseña es obligatoria";
+  } else {
+    form.errors.password = "La contraseña es incorrecta o no existe el usuario";
+  }
+
+  form.errors.dni = "DNI o contraseña incorrectos";
+},
     onSuccess: () => {
       form.reset('password');
     },

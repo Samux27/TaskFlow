@@ -26,9 +26,14 @@ Route::middleware([
 
     // Ruta de dashboard, solo accesible por usuarios autenticados y verificados
     Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
+        // Obtener el usuario autenticado
+        $user = Auth::user();
+    
+        // Pasar el usuario a la vista de Inertia
+        return Inertia::render('Dashboard', [
+            'user' => $user,  // Pasa el usuario completo, incluyendo la propiedad avatar
+        ]);
     })->middleware(['auth', 'verified'])->name('dashboard');
-
     // Grupo de rutas que requieren autenticación
     Route::middleware('auth')->group(function () {
 

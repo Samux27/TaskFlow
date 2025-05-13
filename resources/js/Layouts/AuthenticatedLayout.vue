@@ -27,12 +27,13 @@ const showingNavigationDropdown = ref(false);
               <!-- Logo -->
               <div class="flex shrink-0 items-center">
                 <Link :href="route('dashboard')">
-                <ApplicationLogo class="block h-9 w-auto fill-current text-gray-800" />
+                <!-- Cambia la imagen de fondo aquí -->
+                <img src="/images/Logo TaskFlow.jpg" alt="Logo" class="block h-9 w-auto rounded-full" />
                 </Link>
               </div>
 
               <!-- Navigation Links -->
-              
+
 
               <div v-if="roles.includes('admin')" class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                 <Link :href="route('log.index')" :class="[
@@ -73,7 +74,7 @@ const showingNavigationDropdown = ref(false);
               </div>
 
             </div>
-
+            
             <!-- Settings Dropdown -->
             <div class="hidden sm:ms-6 sm:flex sm:items-center">
               <div class="relative ms-3">
@@ -82,6 +83,12 @@ const showingNavigationDropdown = ref(false);
                     <span class="inline-flex rounded-md">
                       <button type="button"
                         class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none">
+                        <img 
+              :src="`/storage/avatars/${$page.props.auth.user.avatar}`" 
+              alt="Profile" 
+              class="h-8 w-8 rounded-full mr-2"
+            />
+                        
                         {{ $page.props.auth.user.name }}
                         <svg class="-me-0.5 ms-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                           fill="currentColor">
