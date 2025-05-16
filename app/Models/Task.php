@@ -2,7 +2,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use App\Models\User;
+use App\Models\Comment;
 
+use App\Models\Log;
 class Task extends Model
 {
    public $timestamps = false; // Desactiva las marcas de tiempo automáticas si no las necesitas
@@ -38,10 +45,10 @@ class Task extends Model
         return $this->hasMany(Comment::class);
     }
 
-    // Relación con los archivos adjuntos de la tarea (si decides agregar esta funcionalidad)
+    // Relación con los archivos adjuntos (si decides implementar esta funcionalidad)
     public function attachments()
     {
-        return $this->hasMany(Attachment::class);  // Suponiendo que tengas una tabla 'attachments'
+        return $this->hasMany(Attachment::class);
     }
 
     // Relación con los logs relacionados con la tarea (si decides hacer un seguimiento)

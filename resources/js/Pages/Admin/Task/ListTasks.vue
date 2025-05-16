@@ -8,10 +8,7 @@
                 <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">Tareas Registradas</h2>
 
-                    <div v-if="success"
-                        class="bg-emerald-100 text-emerald-700 p-3 rounded mb-4 border border-emerald-300">
-                        {{ success }}
-                    </div>
+                    
 
                     <!-- Botón y búsqueda -->
                     <div class="mb-4 flex justify-between items-center">
@@ -61,7 +58,7 @@
 
                                 </td>
                                 <td>
-                                    <Link :href="`/tarea/${task.id}/edit`" class="text-indigo-600 hover:underline">
+                                    <Link :href="`/task/${task.id}/edit`" class="text-indigo-600 hover:underline">
                                     Editar</Link> |
                                     <button @click="confirmDelete(task.id)"
                                         class="text-rose-600 hover:underline ml-2">Eliminar</button>
@@ -99,7 +96,8 @@ import 'datatables.net'
 import 'datatables.net-responsive'
 import 'datatables.net-dt/css/dataTables.dataTables.min.css'
 import 'datatables.net-responsive-dt/css/responsive.dataTables.min.css'
-
+import { useToast } from 'vue-toastification'
+const flash = usePage().props.flash
 const { tasks } = defineProps({ tasks: Array })
 
 const success = usePage().props.flash?.success
@@ -107,16 +105,26 @@ const showModal = ref(false)
 const taskIdToDelete = ref(null)
 const tableRef = ref(null)
 const searchTerm = ref('')
-
+const toast = useToast()
 const confirmDelete = (id) => {
     taskIdToDelete.value = id
     showModal.value = true
 }
 
+if (flash?.success) {
+  toast.success(flash.success)
+}
 const deleteTask = () => {
-    router.delete(`/tarea/${taskIdToDelete.value}`, {
+    router.delete(`/task/${taskIdToDelete.value}`, {
+        
         onSuccess: () => {
+            console.log("Tarea eliminada correctamente")
             showModal.value = false
+            toast.success("Tarea eliminada correctamente");
+        },
+        onError: () => {
+            console.log("Error al eliminar la tarea")
+            toast.error("Error al eliminar la tarea");  
         }
     })
 }

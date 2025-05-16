@@ -46,16 +46,16 @@ Route::middleware([
         Route::middleware(['role_or_permission:admin'])->group(function () {
             // Rutas de usuarios solo accesibles por admin
             Route::resource('/users', UserController::class);
+            Route::resource('log', LogController::class);
         });
 
         // Rutas relacionadas con las tareas
         Route::resource('task', TaskController::class);
         Route::get('/mis-tareas', [TaskController::class, 'ListUsersTask'])->name('task.ListUsersTask');
-        Route::get('/tasks/{id}', [TaskController::class, 'show'])->name('task.show');
-        Route::patch('/tasks/{id}', [TaskController::class, 'update'])->name('task.update');
+       
 
         // Rutas relacionadas con los logs
-        Route::resource('log', LogController::class);
+        
         
         // Rutas relacionadas con los comentarios
         Route::resource('comments', CommentsController::class);

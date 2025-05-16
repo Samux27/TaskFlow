@@ -11,6 +11,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log as FacadesLog;
+use Illuminate\Support\Str;
+use App\Models\Comment;
+use App\Models\Attachment;
 
 class TaskController extends Controller
 {
@@ -76,7 +82,7 @@ $task->assignedUsers()->sync($request->assigned_users); // Relación muchos a mu
         Log::create([
             'user_id' => Auth::id(), // debe ser el usuario que realiza la acción
             'action' => 'Crear tarea',
-            'details' => 'La Tarea '.$task->title.' con Descripcion' . $task->description . ' fue creada.',
+            'details' => 'La Tarea '.$task->title.' con Descripcion ' . $task->description . ' fue creada.',
             'ip_address' => request()->ip(),
         ]);
         
@@ -106,24 +112,92 @@ $task->assignedUsers()->sync($request->assigned_users); // Relación muchos a mu
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-        //
-    }
+    public function edit($id)
+{
+    
+    // Carga la tarea con usuarios asignados
+    $task = Task::with('assignedUsers')->findOrFail($id);
+
+    // Carga los empleados (usuarios con rol 'empleado')
+    $employees = User::with('roles')->get();
+
+    // ID del jefe autenticado, por ejemplo
+    $bossId = auth()->id();
+
+    // Retorna vista con datos (puede ser Inertia o Blade)
+    return inertia('Admin/Task/EditTask', [
+        'task'      => $task,
+        'employees' => $employees,
+        'bossId'    => $bossId,
+    ]);
+}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+    
+    
+     public function update(Request $request, $id)
+     {  dd($request->all());
+         $task = Task::findOrFail($id);
+     
+         $validated = $request->validate([
+             'title' => 'required|string|max:255',
+             'description' => 'required|string',
+             'assigned_users' => 'required|array|min:1',
+             'assigned_users.*' => 'exists:users,id',
+             'create_date' => 'required|date',
+             'dead_line' => 'nullable|date|after_or_equal:create_date',
+             'importancia' => 'required|in:baja,media,alta',
+             'estado' => 'required|in:pendiente,en progreso,bloqueada,finalizada',
+             'archivos' => 'nullable|array',
+             'archivos.*' => 'file|mimes:jpg,jpeg,png,pdf,docx',
+         ]);
+     
+         // Actualizar datos básicos con el array validado
+         $task->update([
+             'title'       => $validated['title'],
+             'description' => $validated['description'],
+             'create_date' => $validated['create_date'],
+             'dead_line'   => $validated['dead_line'] ?? null,
+             'importancia' => $validated['importancia'],
+             'estado'      => $validated['estado'],
+         ]);
+     
+         // Sincronizar usuarios asignados
+         $task->assignedUsers()->sync($validated['assigned_users']);
+     
+         // (Opcional) Manejo de archivos adjuntos si es necesario
+     
+         // Registrar log
+         Log::create([
+             'user_id'    => Auth::id(),
+             'action'     => 'Actualización de tarea',
+             'details'    => "La tarea '{$task->title}' (ID {$task->id}) fue actualizada. Usuarios asignados: " . implode(', ', $validated['assigned_users']),
+             'ip_address' => request()->ip(),
+         ]);
+     
+         return redirect()->route('task.index')->with('success', 'Tarea actualizada correctamente.');
+     }
+     
+    
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        //
+        
+        $task = Task::findOrFail($id);
+        Log::create([
+            'user_id'   => Auth::id(),           // usuario que realiza la acción
+            'action'    => 'Eliminación de tarea',
+            'details'   => "La tarea {$task->title} (ID {$task->id}) fue eliminada junto con sus relaciones.",
+            'ip_address'=> request()->ip(),
+        ]);
+        
+        // $task->comments()->delete(); // esto en algun momento se usara por que eliminamos los comentarios de los chat de cada tarea 
+        $task->delete();
+        return redirect()->back()->with('success', 'La tarea y sus datos relacionados fueron eliminados correctamente.');
     }
 }

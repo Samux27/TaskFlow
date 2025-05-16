@@ -132,7 +132,7 @@ const form = ref({
 const success = usePage().props.flash?.success
 
 const createUser = () => {
-  router.post('/user', form.value, {
+  router.post('/users', form.value, {
     onSuccess: () => {
       form.value = {
         name: '',

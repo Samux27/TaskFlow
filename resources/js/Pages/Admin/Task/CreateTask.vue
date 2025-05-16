@@ -109,7 +109,7 @@
             </div>
 
             <!-- Archivos -->
-            <div class="mb-6">
+        <!--     <div class="mb-6">
               <label for="archivos" class="block text-gray-700">Adjuntar archivos</label>
               <input
                 type="file"
@@ -118,10 +118,10 @@
                 @change="handleFiles"
                 class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 p-2"
               />
-              <!-- Mostrar error -->
+              
               <div v-if="form.errors.archivos" class="text-red-500 text-sm mt-1">{{ form.errors.archivos }}</div>
             </div>
-
+          -->
             <!-- Botones -->
             <div class="flex justify-end gap-4">
               <button
@@ -157,45 +157,52 @@
         />
 
         <!-- Lista de usuarios -->
-        <ul>
-          <li
-            v-for="user in filteredUsers"
-            :key="user.id"
-            class="flex items-center space-x-4 mb-2 p-4 border rounded-lg shadow-sm"
-            :class="{
-              'bg-blue-100': user.role === 'employee',
-              'bg-green-100': user.role === 'boss',
-              'bg-red-100': user.role === 'admin'
-            }"
-          >
-            <!-- Casilla de selección -->
-            <input
-              type="checkbox"
-              :value="user.id"
-              v-model="form.assigned_users"
-              class="h-4 w-4"
-            />
+        <RecycleScroller
+  :items="filteredUsers"
+  key-field="id"         
+  :item-size="96"         
+  class="h-96 overflow-y-auto"  
+>
+  <template #default="{ item: user }">
+    <li
+      class="flex items-center gap-4 p-4 border rounded-lg shadow-sm h-24"
+      :class="{
+        'bg-blue-50':  user.roles.some(r => r.name === 'employee'),
+        'bg-green-50': user.roles.some(r => r.name === 'boss'),
+        'bg-red-50':   user.roles.some(r => r.name === 'admin')
+      }"
+    >
+      <!-- checkbox -->
+      <input
+        type="checkbox"
+        :value="user.id"
+        v-model="form.assigned_users"
+        class="h-4 w-4 shrink-0"
+      />
 
-            <!-- Información del usuario -->
-            <div class="flex flex-col">
-              <span class="font-semibold">{{ user.name }} {{ user.surname }}</span>
-              <span class="text-sm text-gray-600">ID: {{ user.id }}</span>
-              <span class="text-sm text-gray-600">DNI: {{ user.dni }}</span>
-            </div>
+      <!-- datos básicos -->
+      <div class="flex flex-col truncate">
+        <span class="font-semibold truncate w-52">
+          {{ user.name }} {{ user.surname }}
+        </span>
+        <span class="text-xs text-gray-600">ID: {{ user.id }}</span>
+        <span class="text-xs text-gray-600">DNI: {{ user.dni }}</span>
+      </div>
 
-            <!-- Role badge -->
-            <span
-              class="ml-auto text-xs px-2 py-1 rounded-full"
-              :class="{
-                'bg-blue-500 text-white': user.roles.some(role => role.name === 'employee'),
-                'bg-green-500 text-white': user.roles.some(role => role.name === 'boss'),
-                'bg-red-500 text-white': user.roles.some(role => role.name === 'admin')
-              }"
-            >
-              {{ user.roles.map(role => role.name).join(', ') }}
-            </span>
-          </li>
-        </ul>
+      <!-- badge de rol -->
+      <span
+        class="ml-auto shrink-0 text-xs px-2 py-1 rounded-full whitespace-nowrap"
+        :class="{
+          'bg-blue-500 text-white':  user.roles.some(r => r.name === 'employee'),
+          'bg-green-500 text-white': user.roles.some(r => r.name === 'boss'),
+          'bg-red-500 text-white':   user.roles.some(r => r.name === 'admin')
+        }"
+      >
+        {{ user.roles.map(r => r.name).join(', ') }}
+      </span>
+    </li>
+  </template>
+</RecycleScroller>
 
         <!-- Botones del modal -->
         <div class="flex justify-end gap-4 mt-4">
@@ -221,6 +228,8 @@
 import { ref, computed, watch } from 'vue'
 import { useForm, Head } from '@inertiajs/vue3'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import { RecycleScroller } from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 const props = defineProps({
   employees: Array,
@@ -287,5 +296,5 @@ console.log(props.employees)
 </script>
 
 <style scoped>
-/* Aquí puedes personalizar el estilo del modal si lo necesitas */
+
 </style>
