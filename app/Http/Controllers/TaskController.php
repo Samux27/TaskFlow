@@ -106,7 +106,10 @@ $task->assignedUsers()->sync($request->assigned_users); // Relación muchos a mu
      */
     public function show(string $id)
     {
-        //
+        $task = Task::findOrFail($id);
+        return Inertia::render('Admin/Task/ShowTask', [    
+            'task' => $task,
+        ]);
     }
 
     /**
@@ -138,7 +141,7 @@ $task->assignedUsers()->sync($request->assigned_users); // Relación muchos a mu
     
     
      public function update(Request $request, $id)
-     {  dd($request->all());
+     {  
          $task = Task::findOrFail($id);
      
          $validated = $request->validate([
@@ -153,7 +156,7 @@ $task->assignedUsers()->sync($request->assigned_users); // Relación muchos a mu
              'archivos' => 'nullable|array',
              'archivos.*' => 'file|mimes:jpg,jpeg,png,pdf,docx',
          ]);
-     
+         
          // Actualizar datos básicos con el array validado
          $task->update([
              'title'       => $validated['title'],
@@ -163,20 +166,21 @@ $task->assignedUsers()->sync($request->assigned_users); // Relación muchos a mu
              'importancia' => $validated['importancia'],
              'estado'      => $validated['estado'],
          ]);
-     
+    
          // Sincronizar usuarios asignados
          $task->assignedUsers()->sync($validated['assigned_users']);
      
          // (Opcional) Manejo de archivos adjuntos si es necesario
      
          // Registrar log
+         
          Log::create([
              'user_id'    => Auth::id(),
              'action'     => 'Actualización de tarea',
              'details'    => "La tarea '{$task->title}' (ID {$task->id}) fue actualizada. Usuarios asignados: " . implode(', ', $validated['assigned_users']),
              'ip_address' => request()->ip(),
          ]);
-     
+         
          return redirect()->route('task.index')->with('success', 'Tarea actualizada correctamente.');
      }
      

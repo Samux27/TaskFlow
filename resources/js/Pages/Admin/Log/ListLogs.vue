@@ -84,6 +84,7 @@ const formatDate = (fecha) => {
 
 onMounted(() => {
   $(logTable.value).DataTable({
+    order: [[5, 'desc']], // Ordenar por fecha descendente 
     responsive: true,
     info: false,
     lengthChange: false,
