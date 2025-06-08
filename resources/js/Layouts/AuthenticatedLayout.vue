@@ -63,7 +63,7 @@ const showingNavigationDropdown = ref(false);
                 Tareas
                 </Link>
 
-                <Link :href="route('dashboard')" :class="[
+                <Link :href="route('boss-employee.index')" :class="[
                   'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
                   route().current('dashboard')
                     ? 'border-indigo-500 text-gray-900'

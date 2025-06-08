@@ -32,7 +32,12 @@ class UserController extends Controller
 
     public function index()
 {
-    $usuarios = User::all();
+    $usuarios = User::with('roles:id,name') // Eager load roles to avoid N+1 query problem
+        ->get()
+        ->map(function ($user) {
+            $user->role = $user->roles->pluck('name')->first(); // Get the first role name
+            return $user->only(['id', 'name', 'surname', 'email', 'dni', 'role', 'is_active']);
+        });
     
     return Inertia::render('Admin/User/ListUsers', [
         'users' => $usuarios,
@@ -135,7 +140,7 @@ class UserController extends Controller
             Rule::unique('users', 'email')->ignore($user->id),
         ],
         'password' => 'nullable|string',
-        'role' => ['required', Rule::in(['admin', 'jefe', 'employee'])],
+        'role' => ['required', Rule::in(['admin', 'boss', 'employee'])],
         'is_active' => 'required',
         'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
     ]);

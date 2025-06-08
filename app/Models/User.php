@@ -12,6 +12,7 @@ use App\Models\Comment;
 use App\Models\Log;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\BelongsToMany;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -81,5 +82,15 @@ class User extends Authenticatable
             $q->where('name', $role);  // Alcance para filtrar usuarios por rol
         });
     }
-    
+        public function employees()  // jefes → empleados
+    {
+        return $this->belongsToMany(User::class, 'empleado_jefe',
+            'boss_id', 'employe_id');
+    }
+
+    public function bosses()     // empleados → jefes
+    {
+        return $this->belongsToMany(User::class, 'empleado_jefe',
+            'employe_id', 'boss_id');
+    }
 }

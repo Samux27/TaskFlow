@@ -20,7 +20,7 @@
               <tr>
                 <th>ID</th>
                 <th>Nombre</th>
-                <th>Correo</th>
+                <th>Rol</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -29,7 +29,7 @@
               <tr v-for="user in users" :key="user.id" @click="openUserModal(user)" class="cursor-pointer hover:bg-gray-100">
                 <td>{{ user.id }}</td>
                 <td class="text-indigo-700 text-black">{{ user.name }}</td>
-                <td>{{ user.email }}</td>
+                <td>{{ tRole(user.role) }}</td>
                 <td>
                   <span :class="user.is_active ? 'bg-emerald-500' : 'bg-red-500'" class="px-3 py-1 text-sm rounded text-white">
                     {{ user.is_active ? 'Activo' : 'Inactivo' }}
@@ -81,7 +81,7 @@
             <p><strong>Apellidos:</strong> {{ selectedUser.surname }}</p>
             <p><strong>DNI:</strong> {{ selectedUser.dni }}</p>
             <p><strong>Email:</strong> {{ selectedUser.email }}</p>
-            <p><strong>Rol:</strong> {{ selectedUser.role }}</p>
+            <p><strong>Rol:</strong> {{ tRole(selectedUser.role) }}</p>
             <p><strong>Estado:</strong> {{ selectedUser.is_active ? 'Activo' : 'Inactivo' }}</p>
           </div>
 
@@ -112,6 +112,14 @@ const flash = usePage().props.flash
 if (flash?.success) {
   toast.success(flash.success)
 }
+const roleToEs = {
+  admin:    'Administrador',
+  boss:     'Jefe',
+  employee: 'Empleado',
+  user:     'Usuario',
+};
+const tRole = (role) => roleToEs[ (role || '').toLowerCase() ] ?? role;
+/* ②  Función utilitaria */
 
 // refs
 const showModal = ref(false)

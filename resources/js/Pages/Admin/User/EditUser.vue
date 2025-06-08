@@ -96,7 +96,7 @@
                             <label for="role" class="block text-sm font-medium text-gray-700">Rol</label>
                             <select v-model="form.role" id="role" class="mt-1 block w-full border rounded px-3 py-2">
                                 <option value="admin">Admin</option>
-                                <option value="jefe">Jefe</option>
+                                <option value="boss">Jefe</option>
                                 <option value="employee">Empleado</option>
                             </select>
                             <p class="text-sm text-red-500 mt-1">{{ form.errors.role }}</p>

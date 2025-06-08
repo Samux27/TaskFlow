@@ -10,7 +10,8 @@ use App\Http\Controllers\LogController;
 use App\Http\Controllers\CommentsController;
 use Illuminate\Session\Middleware\StartSession;
 use App\Http\Middleware\HandleInertiaRequests;
-
+use App\Http\Controllers\BossEmployeeController;
+use Illuminate\Support\Facades\Auth;
 Route::middleware([
     StartSession::class,
     HandleInertiaRequests::class,
@@ -47,6 +48,8 @@ Route::middleware([
             // Rutas de usuarios solo accesibles por admin
             Route::resource('/users', UserController::class);
             Route::resource('log', LogController::class);
+            Route::post('/boss/permissions', [BossEmployeeController::class, 'store']);
+            Route::resource('boss-employee', BossEmployeeController::class);
         });
 
         // Rutas relacionadas con las tareas
@@ -54,7 +57,7 @@ Route::middleware([
         Route::get('/mis-tareas', [TaskController::class, 'ListUsersTask'])->name('task.ListUsersTask');
        
 
-        // Rutas relacionadas con los logs
+        
         
         
         // Rutas relacionadas con los comentarios
