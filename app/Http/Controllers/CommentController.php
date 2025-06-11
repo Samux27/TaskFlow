@@ -5,31 +5,35 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class CommentsController extends Controller
+class CommentController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+   public function index(Task $task)
     {
-        //
+        dd("hago lo que sea esto ");
+        // Incluye usuario que escribió el comentario
+        $comments = $task->comments()->with('user')->orderBy('created_at')->get();
+        return response()->json($comments);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // Añadir comentario a una tarea
+    public function store(Request $request, Task $task)
     {
-        //
+        dd("mando");
+        $request->validate([
+            'content' => 'required|string|max:2000',
+        ]);
+
+        $comment = $task->comments()->create([
+            'user_id' => auth()->id(),
+            'content' => $request->content,
+        ]);
+
+        return response()->json($comment->load('user'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
     /**
      * Display the specified resource.

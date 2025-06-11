@@ -7,7 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LogController;
-use App\Http\Controllers\CommentsController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Session\Middleware\StartSession;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Controllers\BossEmployeeController;
@@ -19,6 +19,9 @@ Route::middleware([
     \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
     \Illuminate\Cookie\Middleware\EncryptCookies::class,
 ])->group(function () {
+    Route::get('/task/{task}/comments', [CommentController::class, 'index']);
+        // Crear un comentario en una tarea (almacenar)
+        Route::post('/task/{task}/comments', [CommentController::class, 'store']);
 
     // Ruta raíz: renderiza la vista de login
     Route::get('/', function () {
@@ -37,31 +40,66 @@ Route::middleware([
     })->middleware(['auth', 'verified'])->name('dashboard');
     // Grupo de rutas que requieren autenticación
     Route::middleware('auth')->group(function () {
-
+        //!!!!!! NO PONGAS CREATE ABAJO DE SHOW PORQUE NO FUNCIONA EL CREAR 
+        Route::get('task/create', [TaskController::class, 'create'])->name('task.create');
+        Route::post('task', [TaskController::class, 'store'])->name('task.store');
+        //permite que todos los usuarios identificados puedan ver la tarea. da igual si son administradores o empleados
+        Route::get('task/{task}', [TaskController::class, 'show'])->name('task.show');
+        Route::get('task', [TaskController::class, 'index'])->name('task.index');
+        // Comentarios de una tarea (obtener)
+        
         // Rutas relacionadas con el perfil
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-        // Grupo de rutas para los administradores
+
+        
+                      
+        //Rutas para los administradores
+        
         Route::middleware(['role_or_permission:admin'])->group(function () {
-            // Rutas de usuarios solo accesibles por admin
+            
             Route::resource('/users', UserController::class);
+
             Route::resource('log', LogController::class);
+
             Route::post('/boss/permissions', [BossEmployeeController::class, 'store']);
             Route::resource('boss-employee', BossEmployeeController::class);
+
+            //estos son todas las rutas de tareas por que tengo que hacer que show se pueda acceder desde cualquier usuario autenticado
+            // y las demás solo por administradores
+            
+           
+                      
+            Route::get('task/{task}/edit', [TaskController::class, 'edit'])->name('task.edit');
+            Route::put('task/{task}', [TaskController::class, 'update'])->name('task.update');
+            Route::patch('task/{task}', [TaskController::class, 'update']);
+            Route::delete('task/{task}', [TaskController::class, 'destroy'])->name('task.destroy');
         });
 
-        // Rutas relacionadas con las tareas
-        Route::resource('task', TaskController::class);
-        Route::get('/mis-tareas', [TaskController::class, 'ListUsersTask'])->name('task.ListUsersTask');
+        //Rutas de empleados 
+        Route::middleware(['role_or_permission:employee'])->group(function () {
+            //ruta especifica para que los empleados puedan actualizar el estado de una tarea
+        Route::patch('/task/{task}/status', [TaskController::class, 'updateStatus'])->name('task.updateStatus');
+             
+
+
+          Route::get('mis-tareas', [TaskController::class, 'employeeIndex'])
+                      ->name('employee.tasks.index');
+          Route::post('mis-tareas', [TaskController::class, 'storeSelf'])
+                      ->name('employee.tasks.store');
+
+});
+       
+        
        
 
         
         
         
         // Rutas relacionadas con los comentarios
-        Route::resource('comments', CommentsController::class);
+        
     });
 
     // Ruta para crear un usuario, accesible solo por administradores

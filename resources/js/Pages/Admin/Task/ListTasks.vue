@@ -10,7 +10,7 @@
 
                     <!-- Botón Nueva Tarea -->
                     <div class="mb-4 flex justify-between items-center">
-                        <Link href="/task/create"
+                        <Link :href="route('task.create')"
                             class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition">
                         Nueva Tarea
                         </Link>
@@ -62,12 +62,12 @@
                                     </span>
                                 </td>
                                 <td @click.stop>
-                                    <a
-  href="#"
-  @click.prevent="router.visit(`/task/${task.id}`)"
-  class="text-green-600 hover:underline"
->Ver</a>
-                                    |
+                                    <a href="#" @click.prevent="router.visit(`/task/${task.id}`)"
+                                        class="text-green-600 hover:underline">Ver</a>
+
+                                    
+                                    <span v-if="userRole === 'admin' ">
+                                        |
                                     <Link :href="`/task/${task.id}/edit`" class="text-indigo-600 hover:underline"
                                         @click.stop>Editar</Link>
                                     |
@@ -75,6 +75,7 @@
                                         class="text-rose-600 hover:underline ml-2">
                                         Eliminar
                                     </button>
+                                    </span>
                                 </td>
                             </tr>
                         </tbody>
@@ -117,7 +118,10 @@ import 'datatables.net-dt/css/dataTables.dataTables.min.css'
 import 'datatables.net-responsive-dt/css/responsive.dataTables.min.css'
 import { useToast } from 'vue-toastification'
 
-const { tasks } = defineProps({ tasks: Array })
+const { tasks } = defineProps({ 
+    tasks: Array, 
+    userRole: String,
+})
 
 // Flash & toast
 const flash = usePage().props.flash

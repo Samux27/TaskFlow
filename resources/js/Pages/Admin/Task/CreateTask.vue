@@ -36,7 +36,7 @@
             </div>
 
             <!-- Empleado asignado -->
-            <div class="mb-4">
+            <div class="mb-4" v-if="props.userRole !== 'employee'" >
               <label for="employe_id" class="block text-gray-700">Asignar a</label>
               <button
                 type="button"
@@ -124,6 +124,9 @@
           -->
             <!-- Botones -->
             <div class="flex justify-end gap-4">
+              <span v-if="props.userRole === 'employee'"
+                    class="ml-2 cursor-pointer text-blue-500 font-bold"
+                    title="Esta Tarea solo puede ser asignada a uno mismo.">?</span>
               <button
                 type="submit"
                 class="bg-indigo-600 text-white px-4 py-2 rounded transition hover:bg-indigo-700"
@@ -131,6 +134,7 @@
               >
                 Crear Tarea
               </button>
+              
               <Link
                 href="/task"
                 class="bg-gray-300 text-gray-800 px-4 py-2 rounded transition hover:bg-gray-400"
@@ -218,6 +222,7 @@
           >
             Guardar
           </button>
+          
         </div>
       </div>
     </div>
@@ -233,9 +238,10 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 const props = defineProps({
   employees: Array,
-  bossId: Number
+  bossId: Number,
+  userRole: String,
 })
-
+console.log(props.userRole)
 const form = useForm({
   title: '',
   description: '',
@@ -271,6 +277,9 @@ const handleFiles = (e) => {
 }
 
 const submitForm = () => {
+   if (props.userRole === 'employee') {
+    form.assigned_users = [props.bossId] // bossId sería el ID del propio usuario (siempre le llega a sí mismo)
+  }
   const data = new FormData()
   Object.entries(form.data()).forEach(([key, value]) => {
     if (key === 'archivos') {

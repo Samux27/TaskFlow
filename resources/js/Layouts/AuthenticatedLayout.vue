@@ -35,8 +35,8 @@ const showingNavigationDropdown = ref(false);
               <!-- Navigation Links -->
 
 
-              <div v-if="roles.includes('admin')" class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                <Link :href="route('log.index')" :class="[
+              <div  class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <Link v-if="roles.includes('admin')" :href="route('log.index')" :class="[
                   'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
                   route().current('log.index')
                     ? 'border-indigo-500 text-gray-900'
@@ -45,7 +45,7 @@ const showingNavigationDropdown = ref(false);
                 Logs
                 </Link>
 
-                <Link :href="route('users.index')" :class="[
+                <Link v-if="roles.includes('admin')":href="route('users.index')" :class="[
                   'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
                   route().current('users.index')
                     ? 'border-indigo-500 text-gray-900'
@@ -54,22 +54,48 @@ const showingNavigationDropdown = ref(false);
                 Usuarios
                 </Link>
 
-                <Link :href="route('task.index')" :class="[
+                <Link
+  v-if="roles.includes('admin')"
+  :href="route('task.index')"
+  :class="[
+    'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
+    route().current('task.index')
+      ? 'border-indigo-500 text-gray-900'
+      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+  ]"
+>
+  Tareas
+</Link>
+
+<!-- EMPLEADO: sólo sus tareas ------------------------------------->
+<Link
+  v-else
+  :href="route('employee.tasks.index')"
+  :class="[
+    'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
+    route().current('employee.tasks.index')
+      ? 'border-indigo-500 text-gray-900'
+      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+  ]"
+>
+  Mis tareas
+</Link>
+
+                <Link v-if="roles.includes('admin')":href="route('boss-employee.index')" :class="[
                   'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
-                  route().current('task.index')
+                  route().current('boss-employee.index')
                     ? 'border-indigo-500 text-gray-900'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 ]">
-                Tareas
+                Asignar Empleados
                 </Link>
-
-                <Link :href="route('boss-employee.index')" :class="[
+                <Link v-if="roles.includes('boss')":href="route('boss-employee.index')" :class="[
                   'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
                   route().current('dashboard')
                     ? 'border-indigo-500 text-gray-900'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 ]">
-                Asignar Empleados
+                Empleados
                 </Link>
               </div>
 

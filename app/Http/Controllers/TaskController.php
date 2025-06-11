@@ -26,10 +26,12 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tareas = Task::all();
-        
+         $tareas = Task::with(['comments.user'])->get();
+       
         return Inertia::render('Admin/Task/ListTasks', [
             'tasks' => $tareas,
+            'userRole' => auth()->user()->getRoleNames()->first(),
+            
         ]);
     }
 
@@ -38,12 +40,14 @@ class TaskController extends Controller
      */
     public function create()
     {
+        
         // Obtener todos los usuarios con sus roles
         $employees = User::with('roles')->get();  // Usando la relación 'roles' de Spatie
         
         return Inertia::render('Admin/Task/CreateTask', [
             'employees' => $employees,
             'bossId' => auth()->id(),  // Id del jefe autenticado
+            'userRole' => auth()->user()->getRoleNames()->first(), // Obtener el rol del usuario autenticado
         ]);
     }
 
@@ -123,45 +127,18 @@ public function store(Request $request)
 {
     /* 1. Tarea + relaciones reales */
     $task = Task::with([
-        'boss:id,name',                    // jefe (boss_id)
-        'assignedUsers:id,name',               // muchos-a-muchos por task_user
-    ])->findOrFail($id);
+    'boss:id,name',           // jefe asignador
+    'assignedUsers:id,name',  // usuarios asignados (muchos a muchos)
+    'comments.user:id,name',  // comentarios de la tarea y usuario de cada comentario
+])->findOrFail($id);
 
-    /* 2. Adjuntos -> [{name,url}] */
-    $attachments = [];
-    if ($task->archivos) {
-        try {
-            $files = is_array($task->archivos)
-                ? $task->archivos
-                : json_decode($task->archivos, true, 512, JSON_THROW_ON_ERROR);
-
-            $attachments = collect($files)->filter()->map(fn ($path) => [
-                'name' => basename($path),
-                'url'  => Storage::exists($path) ? Storage::url($path) : '#',
-            ])->values()->all();
-        } catch (\Throwable $e) { /* ignore json error */ }
-    }
+    
 
     /* 3. Payload compacto */
+    
     return Inertia::render('Admin/Task/ShowTask', [
-        'task' => [
-            'id'          => $task->id,
-            'title'       => $task->title,
-            'description' => $task->description,
-            'estado'      => $task->estado,
-            'importancia' => $task->importancia,
-            'create_date' => $task->create_date,
-            'deadLine'    => $task->deadLine,
-            'complete_at' => $task->complete_at,
-            'updated_at'  => $task->updated_at,
-
-            /* Relaciones */
-            'boss'        => $task->boss,          // creador / jefe
-            'assignees'   => $task->assignedUsers,
-
-            /* Archivos */
-            'archivos'    => $attachments,
-        ],
+        'task' => $task,
+        'userRole' => auth()->user()->getRoleNames()->first(),
     ]);
 }
 
@@ -274,5 +251,42 @@ $completeAt = $validated['complete_at']
     // 👇  Con Route::resource('tasks', ...) la ruta index se llama tasks.index
     return redirect()->route('task.index')
                      ->with('success', 'La tarea fue eliminada correctamente.');
+}
+public function employeeIndex(Request $request)
+{
+    $userId = auth()->id();
+
+    $tasks = Task::with('boss') // si quieres el jefe que creó cada tarea
+        ->where(function($q) use ($userId) {
+            // 1) Tareas creadas por mí como boss
+            $q->where('boss_id', $userId)
+              // 2) O tareas en las que estoy apuntado en task_user
+              ->orWhereHas('assignedUsers', function($q2) use ($userId) {
+                  $q2->where('user_id', $userId);
+              });
+        })
+        ->orderBy('create_date', 'desc')->get();  // tu timestamp real :contentReference[oaicite:1]{index=1}
+                        
+
+    return inertia('Admin/Task/ListTasks', [
+        'tasks' => $tasks,
+        'userRole' => auth()->user()->getRoleNames()->first(),
+        
+    ]);
+}
+public function updateStatus(Request $request, Task $task)
+{
+   
+    $request->validate([
+        'estado' => 'required|in:pendiente,en progreso,finalizada'
+    ]);
+    
+    // Solo los empleados asignados pueden cambiar el estado (opcional, según permisos)
+    
+
+    $task->estado = $request->estado;
+    $task->save();
+
+    return redirect()->back()->with('success', 'Estado de la tarea actualizado.');
 }
 }
