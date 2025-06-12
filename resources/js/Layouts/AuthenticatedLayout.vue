@@ -35,7 +35,7 @@ const showingNavigationDropdown = ref(false);
               <!-- Navigation Links -->
 
 
-              <div  class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+              <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                 <Link v-if="roles.includes('admin')" :href="route('log.index')" :class="[
                   'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
                   route().current('log.index')
@@ -45,7 +45,7 @@ const showingNavigationDropdown = ref(false);
                 Logs
                 </Link>
 
-                <Link v-if="roles.includes('admin')":href="route('users.index')" :class="[
+                <Link v-if="roles.includes('admin')" :href="route('users.index')" :class="[
                   'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
                   route().current('users.index')
                     ? 'border-indigo-500 text-gray-900'
@@ -54,34 +54,26 @@ const showingNavigationDropdown = ref(false);
                 Usuarios
                 </Link>
 
-                <Link
-  v-if="roles.includes('admin')"
-  :href="route('task.index')"
-  :class="[
-    'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
-    route().current('task.index')
-      ? 'border-indigo-500 text-gray-900'
-      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-  ]"
->
-  Tareas
-</Link>
+                <Link v-if="roles.includes('admin')" :href="route('task.index')" :class="[
+                  'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
+                  route().current('task.index')
+                    ? 'border-indigo-500 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ]">
+                Tareas
+                </Link>
 
-<!-- EMPLEADO: sólo sus tareas ------------------------------------->
-<Link
-  v-else
-  :href="route('employee.tasks.index')"
-  :class="[
-    'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
-    route().current('employee.tasks.index')
-      ? 'border-indigo-500 text-gray-900'
-      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-  ]"
->
-  Mis tareas
-</Link>
+                <!-- EMPLEADO y jefes : sólo sus tareas ------------------------------------->
+                <Link v-else :href="route('employee.tasks.index')" :class="[
+                  'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
+                  route().current('employee.tasks.index')
+                    ? 'border-indigo-500 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ]">
+                Mis tareas
+                </Link>
 
-                <Link v-if="roles.includes('admin')":href="route('boss-employee.index')" :class="[
+                <Link v-if="roles.includes('admin')" :href="route('boss-employee.index')" :class="[
                   'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
                   route().current('boss-employee.index')
                     ? 'border-indigo-500 text-gray-900'
@@ -89,9 +81,9 @@ const showingNavigationDropdown = ref(false);
                 ]">
                 Asignar Empleados
                 </Link>
-                <Link v-if="roles.includes('boss')":href="route('boss-employee.index')" :class="[
+                <Link v-if="roles.includes('boss')" :href="route('boss.empleados')" :class="[
                   'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out',
-                  route().current('dashboard')
+                  route().current('boss.empleados')
                     ? 'border-indigo-500 text-gray-900'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 ]">
@@ -100,7 +92,7 @@ const showingNavigationDropdown = ref(false);
               </div>
 
             </div>
-            
+
             <!-- Settings Dropdown -->
             <div class="hidden sm:ms-6 sm:flex sm:items-center">
               <div class="relative ms-3">
@@ -109,12 +101,9 @@ const showingNavigationDropdown = ref(false);
                     <span class="inline-flex rounded-md">
                       <button type="button"
                         class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none">
-                        <img 
-              :src="`/storage/avatars/${$page.props.auth.user.avatar}`" 
-              alt="Profile" 
-              class="h-8 w-8 rounded-full mr-2"
-            />
-                        
+                        <img :src="`/storage/avatars/${$page.props.auth.user.avatar}`" alt="Profile"
+                          class="h-8 w-8 rounded-full mr-2" />
+
                         {{ $page.props.auth.user.name }}
                         <svg class="-me-0.5 ms-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                           fill="currentColor">

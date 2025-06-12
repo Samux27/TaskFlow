@@ -36,7 +36,7 @@
             </div>
 
             <!-- Empleado asignado -->
-            <div class="mb-4" v-if="props.userRole !== 'employee'" >
+            <div class="mb-4" v-if="props.userRole === 'admin'" >
               <label for="employe_id" class="block text-gray-700">Asignar a</label>
               <button
                 type="button"
@@ -136,11 +136,12 @@
               </button>
               
               <Link
-                href="/task"
-                class="bg-gray-300 text-gray-800 px-4 py-2 rounded transition hover:bg-gray-400"
-              >
-                Cancelar
-              </Link>
+  :href="props.userRole === 'admin' ? '/task' : '/mis-tareas'"
+  class="bg-gray-300 text-gray-800 px-4 py-2 rounded transition hover:bg-gray-400"
+>
+  Cancelar
+</Link>
+
             </div>
           </form>
         </div>
@@ -277,7 +278,7 @@ const handleFiles = (e) => {
 }
 
 const submitForm = () => {
-   if (props.userRole === 'employee') {
+   if (props.userRole !== 'admin'){
     form.assigned_users = [props.bossId] // bossId sería el ID del propio usuario (siempre le llega a sí mismo)
   }
   const data = new FormData()

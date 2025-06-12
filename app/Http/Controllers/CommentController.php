@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
+use App\Models\Task;
+use App\Models\Comment;
+use App\Models\Log;
+use Illuminate\Support\Facades\Auth;
 class CommentController extends Controller
 {
     /**
@@ -34,7 +37,26 @@ class CommentController extends Controller
         return response()->json($comment->load('user'));
     }
 
+public function sendComment(Request $request, Task $task)
+{ 
+    
+    $request->validate([
+        'content' => 'required|string|max:1000',
+    ]);
 
+    $task->comments()->create([
+        'user_id' => auth()->id(), // O el ID del usuario autenticado
+        'content' => $request->input('content'),
+    ]);
+Log::create([
+        'user_id'    => Auth::id(),
+        'action'     => 'Mensaje de Tarea',
+        'details'    =>  'usuario: ' . Auth::user()->name . ' ha enviado un comentario a la tarea: ' . $task->title . ' (ID: ' . $task->id . ')' . ' - Comentario: ' . $request->input('content') ,  
+        
+        'ip_address' => $request->ip(),
+    ]);
+    return back(); // O response()->json() si usas SPA
+}
     /**
      * Display the specified resource.
      */

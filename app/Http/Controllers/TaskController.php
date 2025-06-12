@@ -111,11 +111,15 @@ public function store(Request $request)
         ),
         'ip_address' => $request->ip(),
     ]);
-
+    $user = Auth::user();
     /* 6️⃣  Redirección */
-    return redirect()
-           ->route('task.index')      // <- listado plural de Route::resource
-           ->with('success', 'Tarea creada con éxito');
+   if ($user->hasRole('admin')) {
+    return redirect()->route('task.index')
+        ->with('success', 'Tarea guardada correctamente');
+} else {
+    return redirect()->route('employee.tasks.index')
+        ->with('success', 'Tarea guardada correctamente');
+}
 }
 
 
@@ -145,25 +149,29 @@ public function store(Request $request)
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id)
+  public function edit($id)
 {
-    
-    // Carga la tarea con usuarios asignados
     $task = Task::with('assignedUsers')->findOrFail($id);
+    $user = auth()->user();
+    $bossId = $user->id;
 
-    // Carga los empleados (usuarios con rol 'empleado')
-    $employees = User::with('roles')->get();
+    // Obtener solo los empleados asignados si es jefe, o todos si es admin
+    if ($user->hasRole('boss')) {
+        // Relación con empleados asignados al jefe (por ejemplo: empleados()->with('roles'))
+        $employees = $user->employees()->with('roles')->get();
+    } else {
+        // Admin ve todos
+        $employees = User::with('roles')->get();
+    }
 
-    // ID del jefe autenticado, por ejemplo
-    $bossId = auth()->id();
-
-    // Retorna vista con datos (puede ser Inertia o Blade)
     return inertia('Admin/Task/EditTask', [
         'task'      => $task,
         'employees' => $employees,
         'bossId'    => $bossId,
+        'userRole'  => $user->getRoleNames()->first(), // opcional
     ]);
 }
+
 
     /**
      * Update the specified resource in storage.
@@ -225,9 +233,15 @@ $completeAt = $validated['complete_at']
         ),
         'ip_address' => $request->ip(),
     ]);
-
+$user = Auth::user();
+    /* 6️⃣  Redirección */
+   if ($user->hasRole('admin')) {
     return redirect()->route('task.index')
-                     ->with('success', 'Tarea actualizada correctamente.');
+        ->with('success', 'Tarea guardada correctamente');
+} else {
+    return redirect()->route('employee.tasks.index')
+        ->with('success', 'Tarea guardada correctamente');
+}
 }
      
     
@@ -235,23 +249,31 @@ $completeAt = $validated['complete_at']
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+public function destroy(string $id)
 {
     $task = Task::findOrFail($id);
 
+    // Eliminar comentarios relacionados
+    $task->comments()->delete();
+
+    // Eliminar relaciones de usuarios asignados
+    $task->assignedUsers()->detach();
+
+    // Guardar log antes de eliminar la tarea
     Log::create([
         'user_id'    => Auth::id(),
         'action'     => 'Eliminación de tarea',
-        'details'    => "La tarea {$task->title} (ID {$task->id}) fue eliminada.",
+        'details'    => "La tarea {$task->title} (ID {$task->id}) fue eliminada junto con sus relaciones.",
         'ip_address' => request()->ip(),
     ]);
 
+    // Eliminar la tarea
     $task->delete();
 
-    // 👇  Con Route::resource('tasks', ...) la ruta index se llama tasks.index
     return redirect()->route('task.index')
                      ->with('success', 'La tarea fue eliminada correctamente.');
 }
+
 public function employeeIndex(Request $request)
 {
     $userId = auth()->id();
@@ -289,4 +311,5 @@ public function updateStatus(Request $request, Task $task)
 
     return redirect()->back()->with('success', 'Estado de la tarea actualizado.');
 }
+
 }

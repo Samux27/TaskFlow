@@ -12,6 +12,10 @@ use Illuminate\Session\Middleware\StartSession;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Controllers\BossEmployeeController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\BossController;
+use App\Http\Controllers\AttachmentController;
+
+
 Route::middleware([
     StartSession::class,
     HandleInertiaRequests::class,
@@ -19,9 +23,9 @@ Route::middleware([
     \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
     \Illuminate\Cookie\Middleware\EncryptCookies::class,
 ])->group(function () {
-    Route::get('/task/{task}/comments', [CommentController::class, 'index']);
-        // Crear un comentario en una tarea (almacenar)
-        Route::post('/task/{task}/comments', [CommentController::class, 'store']);
+   
+        
+        Route::post('/task/{task}/comments', [CommentController::class, 'sendComment']);
 
     // Ruta raíz: renderiza la vista de login
     Route::get('/', function () {
@@ -40,13 +44,21 @@ Route::middleware([
     })->middleware(['auth', 'verified'])->name('dashboard');
     // Grupo de rutas que requieren autenticación
     Route::middleware('auth')->group(function () {
+        //listar y ver tareas del empleado autenticado (jefes y empleados)
+         Route::post('mis-tareas', [TaskController::class, 'storeSelf'])
+                      ->name('employee.tasks.store');
+         Route::get('mis-tareas', [TaskController::class, 'employeeIndex'])
+                      ->name('employee.tasks.index');
         //!!!!!! NO PONGAS CREATE ABAJO DE SHOW PORQUE NO FUNCIONA EL CREAR 
         Route::get('task/create', [TaskController::class, 'create'])->name('task.create');
+
         Route::post('task', [TaskController::class, 'store'])->name('task.store');
         //permite que todos los usuarios identificados puedan ver la tarea. da igual si son administradores o empleados
+
         Route::get('task/{task}', [TaskController::class, 'show'])->name('task.show');
+
         Route::get('task', [TaskController::class, 'index'])->name('task.index');
-        // Comentarios de una tarea (obtener)
+        
         
         // Rutas relacionadas con el perfil
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -85,24 +97,34 @@ Route::middleware([
              
 
 
-          Route::get('mis-tareas', [TaskController::class, 'employeeIndex'])
-                      ->name('employee.tasks.index');
-          Route::post('mis-tareas', [TaskController::class, 'storeSelf'])
-                      ->name('employee.tasks.store');
+         
 
 });
        
         
-       
+               Route::middleware(['auth', 'role:boss'])->group(function () {
+                 Route::get('/mis-empleados', [BossController::class, 'empleadosAsignados'])->name('boss.empleados');
+});
+Route::get('/mis-empleados/{empleado}/tareas', [BossController::class, 'verTareasEmpleado'])
+    
+    ->name('boss.empleado.tareas');
+         
+Route::get('task/{task}/edit', [TaskController::class, 'edit'])->name('task.edit');
+            Route::put('task/{task}', [TaskController::class, 'update'])->name('task.update');
+            Route::patch('task/{task}', [TaskController::class, 'update']);
+            Route::delete('task/{task}', [TaskController::class, 'destroy'])->name('task.destroy');
+Route::get('/mis-empleados/{empleado}/tareas/crear', [BossController::class, 'createTaskForEmployee'])->name('boss.empleado.tasks.create');
+Route::post('/mis-empleados/{empleado}/tareas', [BossController::class, 'storeTaskForEmployee'])->name('boss.empleado.tasks.store');
+
 
         
         
         
-        // Rutas relacionadas con los comentarios
+        
         
     });
 
-    // Ruta para crear un usuario, accesible solo por administradores
+    
     
 });
 

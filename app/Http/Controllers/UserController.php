@@ -59,40 +59,57 @@ class UserController extends Controller
 
    
 
-     public function store(Request $request)
-     {
-        
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'surname' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'dni' => 'required|string|max:255|unique:users,dni','regex:/^[0-9]{8}[A-Z]$/',
-            'password' => 'required|string|confirmed',
-            'role' => 'required|string|in:admin,boss,employee',
-        ]);
-        
-     
-         $user = User::create([
-             'name' => $validated['name'],
-             'surname' => $validated['surname'],
-             'email' => $validated['email'],
-             'dni' => $validated['dni'],
-             'password' => Hash::make($validated['password']),
-             'is_active' => true,
-         ]);
+ public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'surname' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'dni' => [
+            'required',
+            'string',
+            'max:9',
+            'unique:users,dni',
+            'regex:/^[0-9]{8}[A-Z]$/'
+        ],
+        'password' => 'required|string|confirmed',
+        'role' => ['required', Rule::in(['admin', 'boss', 'employee'])],
+        'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
 
-         Log::create([
-            'user_id' => Auth::id(),
-            'action' => 'Creación de usuario',
-            'details' => 'El usuario '.$user->name.' con ID ' . $user->id . ' fue creado.',
-            'ip_address' => request()->ip(),
-        ]);
-         $user->assignRole($validated['role']);
-     
-         return redirect()->route('users.index')->with('success', 'Usuario creado correctamente');
+    $avatarName = null;
 
+    // Si se sube un avatar, procesarlo
+    if ($request->hasFile('avatar')) {
+        $avatar = $request->file('avatar');
+        $avatarName = uniqid() . '.' . $avatar->getClientOriginalExtension();
+        $avatar->storeAs('avatars', $avatarName, 'public');
+    } else {
+        // Si no se sube, establecer uno por defecto
+        $avatarName = 'default.png'; // Asegúrate de que este archivo exista en storage/app/public/avatars
+    }
 
-     }
+    $user = User::create([
+        'name' => $validated['name'],
+        'surname' => $validated['surname'],
+        'email' => $validated['email'],
+        'dni' => strtoupper($validated['dni']),
+        'password' => Hash::make($validated['password']),
+        'is_active' => true,
+        'avatar' => $avatarName,
+    ]);
+
+    $user->assignRole($validated['role']);
+
+    Log::create([
+        'user_id' => Auth::id(),
+        'action' => 'Creación de usuario',
+        'details' => 'El usuario ' . $user->name . ' con ID ' . $user->id . ' fue creado.',
+        'ip_address' => $request->ip(),
+    ]);
+
+    return redirect()->route('users.index')->with('success', 'Usuario creado correctamente');
+}
      
     
 
@@ -186,18 +203,20 @@ class UserController extends Controller
 
     // Avatar
     if ($request->hasFile('avatar')) {
-        if ($user->avatar && Storage::disk('public')->exists('avatars/' . $user->avatar)) {
-            Storage::disk('public')->delete('avatars/' . $user->avatar);
-        }
-
-        $avatar = $request->file('avatar');
-        $avatarName = uniqid() . '.' . $avatar->getClientOriginalExtension();
-        $avatar->storeAs('avatars', $avatarName, 'public');
-
-        $this->logChange('Actualización de avatar', 'Avatar actualizado', $user);
-        $user->avatar = $avatarName;
+    if ($user->avatar && Storage::disk('public')->exists('avatars/' . $user->avatar)) {
+        Storage::disk('public')->delete('avatars/' . $user->avatar);
     }
 
+    $avatar = $request->file('avatar');
+    $avatarName = uniqid() . '.' . $avatar->getClientOriginalExtension();
+    $avatar->storeAs('avatars', $avatarName, 'public');
+
+    $this->logChange('Actualización de avatar', 'Avatar actualizado', $user);
+    $user->avatar = $avatarName;
+} elseif (!$user->avatar) {
+    // Si no tiene avatar y no se ha subido uno, asignar imagen por defecto
+    $user->avatar = 'default-avatar.png';
+}
     // Rol
     $currentRole = $user->roles->first()?->name;
     if ($currentRole !== $validated['role']) {

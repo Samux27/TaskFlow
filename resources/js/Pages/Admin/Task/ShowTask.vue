@@ -1,6 +1,7 @@
 <template>
   <AuthenticatedLayout>
     <!-- 🏷️  Meta título -->
+
     <Head :title="`Tarea #${props.task.id}`" />
 
     <div class="py-12">
@@ -13,9 +14,11 @@
 
           <!-- 🔗 Navegación rápida -->
           <div class="mb-6 flex justify-between items-center text-sm">
-            <Link href="/task" class="text-gray-500 hover:text-indigo-600 transition">← Volver</Link>
-
-            <div class="space-x-3" v-if="userRole === 'admin'">
+            <Link :href="props.userRole === 'admin' ? '/task' : '/mis-tareas'"
+              class="text-gray-500 hover:text-indigo-600 transition">
+            ← Volver
+            </Link>
+            <div class="space-x-3" v-if="userRole !== 'employee'">
               <Link :href="`/task/${props.task.id}/edit`"
                 class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition">Editar</Link>
               <button @click="showDeleteModal = true"
@@ -59,8 +62,9 @@
 
             <!-- ─── Columna 3 ─── -->
             <div class="space-y-1">
-              <p><strong>Jefe asignador:</strong> {{ props.task.boss?.name + " (" + props.task.boss?.id + ")" || '—' }}</p>
-              <p><strong>Actualizada:</strong> {{ format(props.task.updated_at) }}</p>
+              <p><strong>Jefe asignador:</strong> {{ props.task.boss?.name + " (" + props.task.boss?.id + ")" || '—' }}
+              </p>
+              
               <div>
                 <p class="font-semibold">Personas relacionadas: <span
                     class="ml-2 cursor-pointer text-blue-500 font-bold"
@@ -95,9 +99,8 @@
 
     <!-- CHAT -->
     <div class="mt-8 bg-white rounded shadow p-4 border border-gray-100">
-      <h3 class="text-lg font-bold mb-2">Chat de la tarea <span
-        class="ml-2 cursor-pointer text-blue-500 font-bold"
-        title="Se debe reinciar la pagina para actualizar la conversacion.">?</span></h3>  
+      <h3 class="text-lg font-bold mb-2">Chat de la tarea <span class="ml-2 cursor-pointer text-blue-500 font-bold"
+          title="Se debe reinciar la pagina para actualizar la conversacion.">?</span></h3>
       <div class="max-h-72 overflow-y-auto border rounded mb-4 p-2 bg-gray-50" v-if="props.task.comments.length">
         <div v-for="comment in props.task.comments" :key="comment.id" class="mb-2">
           <div class="text-sm text-gray-600">
@@ -119,8 +122,7 @@
     <!-- Mini Modal de cambio de estado -->
     <div v-if="showStatusModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
       <div class="bg-white p-6 rounded-lg shadow-xl border border-gray-200 w-full max-w-sm relative">
-        <button @click="showStatusModal = false"
-          class="absolute top-2 right-2 text-gray-400 hover:text-rose-600"
+        <button @click="showStatusModal = false" class="absolute top-2 right-2 text-gray-400 hover:text-rose-600"
           aria-label="Cerrar">&times;</button>
         <h3 class="text-lg font-bold mb-4">Cambiar estado de la tarea</h3>
         <form @submit.prevent="updateTaskStatus">
@@ -130,8 +132,7 @@
             <option value="en progreso">En progreso</option>
             <option value="finalizada">Finalizada</option>
           </select>
-          <button type="submit"
-            class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded transition">
+          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded transition">
             Guardar
           </button>
         </form>
@@ -228,11 +229,12 @@ const badgeClass = (value, type) => {
 }
 
 // --- Personas relacionadas: jefe + asignados ---
+
 const relatedPeople = computed(() => {
   const set = new Map()
-  ;[...(props.task.assignees || []), props.task.boss].forEach((p) => {
-    if (p && p.id) set.set(p.id, p)
-  })
+    ;[...(props.task.assigned_users || []), task.boss].forEach((p) => {
+      if (p && p.id) set.set(p.id, p)
+    })
   return [...set.values()]
 })
 
@@ -241,9 +243,10 @@ function deleteTask() {
   router.delete(`/task/${props.task.id}`, {
     onSuccess: () => {
       toast.success('Tarea eliminada correctamente')
-      router.visit('/task')
-    },
+      router.visit(props.userRole === 'admin' ? '/task' : '/mis-tareas')
+    }, // si el rol es diferente a admin, redirige a mis-tareas
     onError: () => toast.error('Error al eliminar la tarea'),
   })
 }
+
 </script>

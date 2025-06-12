@@ -11,98 +11,83 @@
             {{ success }}
           </div>
 
-          <form @submit.prevent="createUser" class="space-y-6">
+          <form @submit.prevent="createUser" class="space-y-6" enctype="multipart/form-data">
             <!-- Nombre -->
             <div>
               <label for="name" class="block text-sm font-medium text-gray-700">Nombre</label>
-              <input
-                type="text"
-                id="name"
-                v-model="form.name"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-              <span v-if="errores.name" class="text-sm text-red-500">{{ errores.name }}</span>
+              <input v-model="form.name" type="text" id="name" class="mt-1 block w-full border rounded px-3 py-2" />
+              <p class="text-sm text-red-500 mt-1">{{ errores.name }}</p>
             </div>
 
-            <!-- Apellido -->
+            <!-- Apellidos -->
             <div>
-              <label for="surname" class="block text-sm font-medium text-gray-700">Apellido</label>
-              <input
-                type="text"
-                id="surname"
-                v-model="form.surname"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-              <span v-if="errores.surname" class="text-sm text-red-500">{{ errores.surname }}</span>
-            </div>
-
-            <!-- Correo Electrónico -->
-            <div>
-              <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
-              <input
-                type="email"
-                id="email"
-                v-model="form.email"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-              <span v-if="errores.email" class="text-sm text-red-500">{{ errores.email }}</span>
+              <label for="surname" class="block text-sm font-medium text-gray-700">Apellidos</label>
+              <input v-model="form.surname" type="text" id="surname" class="mt-1 block w-full border rounded px-3 py-2" />
+              <p class="text-sm text-red-500 mt-1">{{ errores.surname }}</p>
             </div>
 
             <!-- DNI -->
             <div>
               <label for="dni" class="block text-sm font-medium text-gray-700">DNI</label>
-              <input
-                type="text"
-                id="dni"
-                v-model="form.dni"
-                @input="form.dni = $event.target.value.toUpperCase()"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-              <span v-if="errores.dni" class="text-sm text-red-500">{{ errores.dni }}</span>
+              <input v-model="form.dni" @input="form.dni = form.dni.toUpperCase()" type="text" id="dni" class="mt-1 block w-full border rounded px-3 py-2" />
+              <p class="text-sm text-red-500 mt-1">{{ errores.dni }}</p>
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700">Correo electrónico</label>
+              <input v-model="form.email" type="email" id="email" class="mt-1 block w-full border rounded px-3 py-2" />
+              <p class="text-sm text-red-500 mt-1">{{ errores.email }}</p>
             </div>
 
             <!-- Contraseña -->
             <div>
               <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-              <input
-                type="password"
-                id="password"
-                v-model="form.password"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-              <span v-if="errores.password" class="text-sm text-red-500">{{ errores.password }}</span>
+              <input v-model="form.password" type="password" id="password" class="mt-1 block w-full border rounded px-3 py-2" />
+              <p class="text-sm text-red-500 mt-1">{{ errores.password }}</p>
             </div>
 
-            <!-- Confirmar Contraseña -->
+            <!-- Confirmación de contraseña -->
             <div>
-              <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirmar Contraseña</label>
-              <input
-                type="password"
-                id="password_confirmation"
-                v-model="form.password_confirmation"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-              <span v-if="errores.password_confirmation" class="text-sm text-red-500">{{ errores.password_confirmation }}</span>
+              <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
+              <input v-model="form.password_confirmation" type="password" id="password_confirmation" class="mt-1 block w-full border rounded px-3 py-2" />
+              <p class="text-sm text-red-500 mt-1">{{ errores.password_confirmation }}</p>
             </div>
 
-            <!-- Selección de Rol -->
+            <!-- Estado -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+              <button type="button" @click="form.is_active = form.is_active === 1 ? 0 : 1"
+                :class="form.is_active === 1 ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-red-500 hover:bg-red-600'"
+                class="text-white px-4 py-2 rounded transition">
+                {{ form.is_active === 1 ? 'Activo' : 'Inactivo' }}
+              </button>
+              <p class="text-sm text-red-500 mt-1">{{ errores.is_active }}</p>
+            </div>
+
+            <!-- Avatar -->
+            <div>
+              <label for="avatar" class="block text-sm font-medium text-gray-700">Avatar</label>
+              <input type="file" id="avatar" @change="handleAvatar" class="mt-1 block w-full text-sm text-gray-700" />
+              <p class="text-sm text-red-500 mt-1">{{ errores.avatar }}</p>
+            </div>
+
+            <!-- Rol -->
             <div>
               <label for="role" class="block text-sm font-medium text-gray-700">Rol</label>
-              <select
-                id="role"
-                v-model="form.role"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              >
-                <option value="admin">Administrador</option>
+              <select v-model="form.role" id="role" class="mt-1 block w-full border rounded px-3 py-2">
+                <option value="admin">Admin</option>
                 <option value="boss">Jefe</option>
                 <option value="employee">Empleado</option>
               </select>
-              <span v-if="errores.role" class="text-sm text-red-500">{{ errores.role }}</span>
+              <p class="text-sm text-red-500 mt-1">{{ errores.role }}</p>
             </div>
 
             <!-- Botón -->
             <div class="flex justify-end">
-              <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md transition">Crear Usuario</button>
+              <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">
+                Crear Usuario
+              </button>
             </div>
           </form>
         </div>
@@ -110,13 +95,15 @@
     </div>
   </AuthenticatedLayout>
 </template>
+
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 import { Head, router } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import { usePage } from '@inertiajs/vue3'
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
 
-const errores = ref({}) // NUEVO
+const errores = ref({})
+const success = usePage().props.flash?.success
 
 const form = ref({
   name: '',
@@ -125,14 +112,25 @@ const form = ref({
   dni: '',
   password: '',
   password_confirmation: '',
-  is_active: true,
+  is_active: 1,
   role: 'employee',
+  avatar: null,
 })
 
-const success = usePage().props.flash?.success
+const handleAvatar = (e) => {
+  form.value.avatar = e.target.files[0]
+}
 
 const createUser = () => {
-  router.post('/users', form.value, {
+  const data = new FormData()
+  for (const [key, value] of Object.entries(form.value)) {
+    if (value !== null && value !== '') {
+      data.append(key, value)
+    }
+  }
+
+  router.post('/users', data, {
+    forceFormData: true,
     onSuccess: () => {
       form.value = {
         name: '',
@@ -141,14 +139,14 @@ const createUser = () => {
         dni: '',
         password: '',
         password_confirmation: '',
-        is_active: true,
+        is_active: 1,
         role: 'employee',
+        avatar: null,
       }
-      errores.value = {} // Limpiar errores si todo va bien
+      errores.value = {}
     },
     onError: (error) => {
       errores.value = error
-      
     },
   })
 }

@@ -85,10 +85,13 @@
                                 class="mt-1 block w-full text-sm text-gray-700" />
                             <p class="text-sm text-red-500 mt-1">{{ form.errors.avatar }}</p>
 
-                            <div v-if="user.avatar" class="mt-2">
-                                <img :src="`/storage/avatars/${user.avatar}`" alt="Avatar actual"
-                                    class="w-20 h-20 rounded-full border" />
-                            </div>
+                            <div class="mt-2">
+  <img
+    :src="user.avatar ? `/storage/avatars/${user.avatar}` : '/images/default-profile.png'"
+    alt="Avatar actual"
+    class="w-20 h-20 rounded-full border"
+  />
+</div>
                         </div>
 
                         <!-- Rol -->

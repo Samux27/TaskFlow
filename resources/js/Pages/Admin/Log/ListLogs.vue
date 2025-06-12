@@ -7,7 +7,7 @@
         <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
           <h2 class="text-xl font-bold text-gray-800 mb-4">Historial de Logs</h2>
 
-          <table ref="logTable" class="display nowrap w-full border border-gray-300" style="width:100%">
+          <table ref="logTable" class=" w-full border border-gray-300" style="width:100%">
             <thead>
               <tr>
                 <th>ID</th>
@@ -86,6 +86,7 @@ onMounted(() => {
   $(logTable.value).DataTable({
     order: [[5, 'desc']], // Ordenar por fecha descendente 
     responsive: true,
+    
     info: false,
     lengthChange: false,
     pageLength: 10,
