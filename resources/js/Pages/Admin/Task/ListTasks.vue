@@ -101,6 +101,9 @@
                 </div>
             </div>
 
+            <button @click="exportTasks" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+  📥 Exportar a Excel
+</button>
 
 
         </div>
@@ -122,7 +125,9 @@ const { tasks } = defineProps({
     tasks: Array, 
     userRole: String,
 })
-
+const exportTasks = () => {
+  window.open('/export-tasks', '_blank');
+}
 // Flash & toast
 const flash = usePage().props.flash
 const toast = useToast()

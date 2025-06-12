@@ -14,7 +14,7 @@ use App\Http\Controllers\BossEmployeeController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\BossController;
 use App\Http\Controllers\AttachmentController;
-
+ use App\Http\Controllers\ExportTaskController;
 
 Route::middleware([
     StartSession::class,
@@ -71,7 +71,10 @@ Route::middleware([
         //Rutas para los administradores
         
         Route::middleware(['role_or_permission:admin'])->group(function () {
-            
+           
+
+Route::get('/export-tasks', [ExportTaskController::class, 'export'])->name('tasks.export');
+
             Route::resource('/users', UserController::class);
 
             Route::resource('log', LogController::class);
