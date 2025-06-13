@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
+use App\Models\User;
+
 use Inertia\Response;
 
 class AuthenticatedSessionController extends Controller
@@ -21,7 +23,15 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
+        $user = User::where('dni', $request->dni)->first();
 
+        if ($user->is_active == "0") {
+            
+            Auth::logout();
+            return back()->withErrors([
+                'dni' => 'Este usuario no está activo.',
+            ]);
+        }
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard'));

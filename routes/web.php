@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\BossController;
 use App\Http\Controllers\AttachmentController;
  use App\Http\Controllers\ExportTaskController;
+ use App\Http\Controllers\CorreoController;
 
 Route::middleware([
     StartSession::class,
@@ -23,7 +24,7 @@ Route::middleware([
     \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
     \Illuminate\Cookie\Middleware\EncryptCookies::class,
 ])->group(function () {
-   
+   Route::get('/send-welcome-email/{name}', [CorreoController::class, 'sendWelcomeEmail']);
         
         Route::post('/task/{task}/comments', [CommentController::class, 'sendComment']);
 
@@ -72,8 +73,8 @@ Route::middleware([
         
         Route::middleware(['role_or_permission:admin'])->group(function () {
            
-
-Route::get('/export-tasks', [ExportTaskController::class, 'export'])->name('tasks.export');
+        Route::get('/export-users', [ExportTaskController::class, 'exportUsers'])->name('users.export');
+        Route::get('/export-tasks', [ExportTaskController::class, 'export'])->name('tasks.export');
 
             Route::resource('/users', UserController::class);
 

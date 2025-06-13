@@ -14,8 +14,11 @@
                             class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition">
                         Nueva Tarea
                         </Link>
+                        <button v-if="userRole === 'admin'" @click="exportTasks" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-300">
+                                 Exportar a Excel
+                            </button>
                     </div>
-
+                    
                     <!-- Tabla -->
                     <table ref="tableRef" class="display nowrap w-full border border-gray-300" style="width: 100%">
                         <thead>
@@ -65,16 +68,16 @@
                                     <a href="#" @click.prevent="router.visit(`/task/${task.id}`)"
                                         class="text-green-600 hover:underline">Ver</a>
 
-                                    
-                                    <span v-if="userRole === 'admin' ">
+
+                                    <span v-if="userRole === 'admin'">
                                         |
-                                    <Link :href="`/task/${task.id}/edit`" class="text-indigo-600 hover:underline"
-                                        @click.stop>Editar</Link>
-                                    |
-                                    <button @click.stop="confirmDelete(task.id)"
-                                        class="text-rose-600 hover:underline ml-2">
-                                        Eliminar
-                                    </button>
+                                        <Link :href="`/task/${task.id}/edit`" class="text-indigo-600 hover:underline"
+                                            @click.stop>Editar</Link>
+                                        |
+                                        <button @click.stop="confirmDelete(task.id)"
+                                            class="text-rose-600 hover:underline ml-2">
+                                            Eliminar
+                                        </button>
                                     </span>
                                 </td>
                             </tr>
@@ -101,9 +104,7 @@
                 </div>
             </div>
 
-            <button @click="exportTasks" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-  📥 Exportar a Excel
-</button>
+            
 
 
         </div>
@@ -121,12 +122,12 @@ import 'datatables.net-dt/css/dataTables.dataTables.min.css'
 import 'datatables.net-responsive-dt/css/responsive.dataTables.min.css'
 import { useToast } from 'vue-toastification'
 
-const { tasks } = defineProps({ 
-    tasks: Array, 
+const { tasks } = defineProps({
+    tasks: Array,
     userRole: String,
 })
 const exportTasks = () => {
-  window.open('/export-tasks', '_blank');
+    window.open('/export-tasks', '_blank');
 }
 // Flash & toast
 const flash = usePage().props.flash

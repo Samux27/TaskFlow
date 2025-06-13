@@ -28,7 +28,7 @@ const showingNavigationDropdown = ref(false);
               <div class="flex shrink-0 items-center">
                 <Link :href="route('dashboard')">
                 <!-- Cambia la imagen de fondo aquí -->
-                <img src="/images/Logo TaskFlow.jpg" alt="Logo" class="block h-9 w-auto rounded-full" />
+                <img src="/images/Logo_TaskFlow.jpg" alt="Logo" class="block h-9 w-auto rounded-full" />
                 </Link>
               </div>
 

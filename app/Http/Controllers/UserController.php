@@ -41,6 +41,8 @@ class UserController extends Controller
     
     return Inertia::render('Admin/User/ListUsers', [
         'users' => $usuarios,
+        'userRole' => Auth::user()->roles->pluck('name')->first(), // Get the first role of the authenticated user
+        
     ]);
 }
 

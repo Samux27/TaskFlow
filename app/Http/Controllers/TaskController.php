@@ -19,6 +19,8 @@ use App\Models\Comment;
 use App\Models\Attachment;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Mail\NotificacionCorreo;
+use Illuminate\Support\Facades\Mail;
 class TaskController extends Controller
 {
     /**
@@ -96,7 +98,9 @@ public function store(Request $request)
 
     /* 4️⃣  Relación muchos-a-muchos */
     $task->assignedUsers()->sync($request->assigned_users);
-
+ // obtiene los correos de los usuarios asignados y les manda el correo de que tienen una tarea nueva 
+    $correoController = new CorreoController();
+    $correoController->sendTaskCreatedEmail($task); 
     /* 5️⃣  Log */
     Log::create([
         'user_id'    => Auth::id(),

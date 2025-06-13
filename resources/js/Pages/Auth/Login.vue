@@ -56,7 +56,8 @@
           </button>
 
           <!-- Debug temporal -->
-          <pre class="text-red-500 text-sm mt-1">{{ form.errors.password }}{{ form.errors.email }}</pre>
+          <pre class="text-red-500 text-sm mt-1">{{ form.errors.password }}</pre> <br>
+          <pre class="text-red-500 text-sm mt-1">{{ form.errors.dni }}</pre>
         </form>
       </div>
     </div>
@@ -80,7 +81,7 @@
 import { useForm, Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
-const logoUrl = '/images/Logo TaskFlow.jpg';
+const logoUrl = '/images/Logo_TaskFlow.jpg';
 
 const form = useForm({
   dni: '',
@@ -97,12 +98,7 @@ const capitalizeDni = () => {
 const submit = () => {
   form.post(route('login'), {
     onError: () => {
-      if (!form.password) {
-        form.errors.password = "La contraseña es obligatoria";
-      } else {
-        form.errors.password = "La contraseña es incorrecta o no existe el usuario";
-      }
-      form.errors.dni = "DNI o contraseña incorrectos";
+      
     },
     onSuccess: () => {
       form.reset('password');

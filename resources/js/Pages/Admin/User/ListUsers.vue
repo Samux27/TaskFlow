@@ -1,5 +1,6 @@
 <template>
   <AuthenticatedLayout>
+
     <Head title="Usuarios" />
 
     <div class="py-12">
@@ -9,9 +10,14 @@
 
           <!-- Botón -->
           <div class="mb-4 flex justify-between items-center">
-            <Link href="/users/create" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition">
-              Nuevo Usuario
+            <Link href="/users/create"
+              class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition">
+            Nuevo Usuario
             </Link>
+            <button v-if="userRole === 'admin'" @click="exportUsers"
+              class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-300">
+              Exportar a Excel
+            </button>
           </div>
 
           <!-- Tabla con DataTable -->
@@ -26,18 +32,22 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="user in users" :key="user.id" @click="openUserModal(user)" class="cursor-pointer hover:bg-gray-100">
+              <tr v-for="user in users" :key="user.id" @click="openUserModal(user)"
+                class="cursor-pointer hover:bg-gray-100">
                 <td>{{ user.id }}</td>
                 <td class="text-indigo-700 text-black">{{ user.name }}</td>
                 <td>{{ tRole(user.role) }}</td>
                 <td>
-                  <span :class="user.is_active ? 'bg-emerald-500' : 'bg-red-500'" class="px-3 py-1 text-sm rounded text-white">
+                  <span :class="user.is_active ? 'bg-emerald-500' : 'bg-red-500'"
+                    class="px-3 py-1 text-sm rounded text-white">
                     {{ user.is_active ? 'Activo' : 'Inactivo' }}
                   </span>
                 </td>
                 <td>
-                  <Link :href="`/users/${user.id}/edit`" @click.stop class="text-indigo-600 hover:underline">Editar</Link> |
-                  <button @click.stop="confirmDelete(user.id)" class="text-rose-600 hover:underline ml-2">Eliminar</button>
+                  <Link :href="`/users/${user.id}/edit`" @click.stop class="text-indigo-600 hover:underline">Editar
+                  </Link> |
+                  <button @click.stop="confirmDelete(user.id)"
+                    class="text-rose-600 hover:underline ml-2">Eliminar</button>
                 </td>
               </tr>
             </tbody>
@@ -52,8 +62,10 @@
           <p class="text-gray-600 mt-2">Esta acción eliminará todas las tareas relacionadas y no se puede deshacer.</p>
 
           <div class="mt-4 flex gap-4 justify-center">
-            <button @click="deleteUser" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded">Eliminar</button>
-            <button @click="showModal = false" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">Cancelar</button>
+            <button @click="deleteUser"
+              class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded">Eliminar</button>
+            <button @click="showModal = false"
+              class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">Cancelar</button>
           </div>
         </div>
       </div>
@@ -63,13 +75,10 @@
         <div class="bg-white p-6 rounded shadow-lg border border-gray-300 w-full max-w-3xl flex gap-6 relative">
           <!-- Avatar -->
           <div class="w-1/3 flex items-center justify-center">
-            <img
-              v-if="selectedUser.avatar"
-              :src="`/storage/avatars/${$page.props.auth.user.avatar}`" 
-              alt="Avatar"
-              class="w-32 h-32 rounded-full border object-cover"
-            />
-            <div v-else class="w-32 h-32 rounded-full border bg-gray-100 flex items-center justify-center text-4xl text-gray-500">
+            <img v-if="selectedUser.avatar" :src="`/storage/avatars/${$page.props.auth.user.avatar}`" alt="Avatar"
+              class="w-32 h-32 rounded-full border object-cover" />
+            <div v-else
+              class="w-32 h-32 rounded-full border bg-gray-100 flex items-center justify-center text-4xl text-gray-500">
               ❓
             </div>
           </div>
@@ -86,7 +95,8 @@
           </div>
 
           <!-- Cerrar -->
-          <button @click="showUserModal = false" class="absolute top-4 right-4 text-gray-600 hover:text-black text-xl">✖</button>
+          <button @click="showUserModal = false"
+            class="absolute top-4 right-4 text-gray-600 hover:text-black text-xl">✖</button>
         </div>
       </div>
     </div>
@@ -105,7 +115,7 @@ import $ from 'jquery'
 import 'datatables.net'
 import 'datatables.net-responsive'
 
-const { users } = defineProps({ users: Array })
+const { users } = defineProps({ users: Array, userRole: String })
 const toast = useToast()
 const flash = usePage().props.flash
 
@@ -113,12 +123,13 @@ if (flash?.success) {
   toast.success(flash.success)
 }
 const roleToEs = {
-  admin:    'Administrador',
-  boss:     'Jefe',
+  admin: 'Administrador',
+  boss: 'Jefe',
   employee: 'Empleado',
-  user:     'Usuario',
+  user: 'Usuario',
+  
 };
-const tRole = (role) => roleToEs[ (role || '').toLowerCase() ] ?? role;
+const tRole = (role) => roleToEs[(role || '').toLowerCase()] ?? role;
 /* ②  Función utilitaria */
 
 // refs
@@ -144,7 +155,9 @@ const deleteUser = () => {
     }
   })
 }
-
+const exportUsers = () => {
+  window.open('/export-users', '_blank');
+}
 // abrir modal de usuario
 const openUserModal = (user) => {
   selectedUser.value = user
