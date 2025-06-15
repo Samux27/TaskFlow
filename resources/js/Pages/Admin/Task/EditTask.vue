@@ -117,6 +117,7 @@ import UserPicker from '@/Components/UserPicker.vue'
 const props = defineProps({
   employees: { type: Array, default: () => [] },
   task:      { type: Object, required: true },
+  userRole: String,
 })
 
 /* Empleados disponibles */

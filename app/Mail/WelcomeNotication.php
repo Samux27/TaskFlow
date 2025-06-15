@@ -8,22 +8,19 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Mail\Mailables\Attachment;
 
-class NotificacionCorreo extends Mailable
+class WelcomeNotication extends Mailable
 {
     use Queueable, SerializesModels;
-    public $task; // Variable para almacenar el nombre del usuario
+
     /**
      * Create a new message instance.
      */
-    public function __construct($task)
+    public $user; // Variable para almacenar la tarea
+    public function __construct($user)
     {
-        $this->task = $task; // Asignar el nombre del usuario a la variable
-        
+        $this->user = $user; // Asignar el usuario a la variable
     }
-    
-
 
     /**
      * Get the message envelope.
@@ -31,29 +28,26 @@ class NotificacionCorreo extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Notificacion Correo',
+            subject: 'Welcome Notification',
         );
     }
-
     public function build()
     {
 
-        return $this->view('emails.notification')  // Usamos la vista 'emails.task_created'
-                    ->subject('Nueva tarea asignada') // Asunto del correo
+        return $this->view('emails.Welcomenotification')  // Usamos la vista 'emails.task_created'
+                    ->subject('Bienvenido a TaskFlow') // Asunto del correo
                     ->with([
+                        'user' => $this->user, // Pasamos el usuario completo a la vista
                         
-                        'task' => $this->task,
-                        'boss' => $this->task->boss,  // Pasamos la tarea completa a la vista
                     ]);
     }
-
     /**
      * Get the message content definition.
      */
     public function content(): Content
     {
         return new Content(
-            view: 'emails.notification',
+            view: 'emails.Welcomenotification',
         );
     }
 

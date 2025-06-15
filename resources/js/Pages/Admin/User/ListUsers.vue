@@ -47,7 +47,7 @@
                   <Link :href="`/users/${user.id}/edit`" @click.stop class="text-indigo-600 hover:underline">Editar
                   </Link> |
                   <button @click.stop="confirmDelete(user.id)"
-                    class="text-rose-600 hover:underline ml-2">Eliminar</button>
+                    class="text-rose-600 hover:underline ml-2">Marcar Inactivo</button>
                 </td>
               </tr>
             </tbody>
@@ -58,12 +58,12 @@
       <!-- Modal Confirmar Eliminación -->
       <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white p-6 rounded shadow-lg border border-gray-300 w-full max-w-md">
-          <h3 class="text-lg font-semibold text-gray-800">¿Eliminar usuario?</h3>
-          <p class="text-gray-600 mt-2">Esta acción eliminará todas las tareas relacionadas y no se puede deshacer.</p>
+          <h3 class="text-lg font-semibold text-gray-800">¿Hibernar usuario?</h3>
+          <p class="text-gray-600 mt-2">Esta acción Marcara al usuario como inactivo y no permitira que acceda a la aplicacion..</p>
 
           <div class="mt-4 flex gap-4 justify-center">
             <button @click="deleteUser"
-              class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded">Eliminar</button>
+              class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded">Hibernar</button>
             <button @click="showModal = false"
               class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">Cancelar</button>
           </div>
@@ -79,7 +79,7 @@
               class="w-32 h-32 rounded-full border object-cover" />
             <div v-else
               class="w-32 h-32 rounded-full border bg-gray-100 flex items-center justify-center text-4xl text-gray-500">
-              ❓
+               <img  :src="`/storage/avatars/default.png`" alt="Avatar" >
             </div>
           </div>
 

@@ -88,7 +88,7 @@
     <div class="container">
         <div class="header">
             <!-- Aquí debes pegar la cadena base64 de tu imagen -->
-            <img src="https://drive.google.com/file/d/1o_UdJmGvx5jxygdZVPVYVcuftNifxDwI/view?usp=drive_link" alt="TaskFlow Logo">
+            <img src="https://ieslamarisma.net/proyectos/2025/samuelpichardo/TFG/Logo_TaskFlow.jpg" alt="TaskFlow Logo">
         </div>
 
         <h1>¡Nueva Tarea Asignada!</h1>
@@ -98,7 +98,10 @@
             <p><strong>Título:</strong> {{ $task->title }}</p>
             <p><strong>Descripción:</strong> {{ $task->description }}</p>
             <p><strong>Fecha de creación:</strong> {{ $task->create_date }}</p>
-            <p><strong>Fecha de vencimiento:</strong> {{ $task->deadLine }}</p>
+            <p><strong>Fecha de vencimiento:</strong> 
+    {{ $task->deadLine ? $task->deadLine : 'No tiene' }}
+</p>
+
             <p><strong>Importancia:</strong> {{ $task->importancia }}</p>
             <p><strong>Estado:</strong> {{ $task->estado }}</p>
         </div>

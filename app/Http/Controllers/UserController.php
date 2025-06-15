@@ -13,6 +13,9 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\CorreoController; // Asegúrate de que la ruta del controlador es correcta
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -87,7 +90,7 @@ class UserController extends Controller
         $avatarName = uniqid() . '.' . $avatar->getClientOriginalExtension();
         $avatar->storeAs('avatars', $avatarName, 'public');
     } else {
-        // Si no se sube, establecer uno por defecto
+        
         $avatarName = 'default.png'; // Asegúrate de que este archivo exista en storage/app/public/avatars
     }
 
@@ -109,6 +112,8 @@ class UserController extends Controller
         'details' => 'El usuario ' . $user->name . ' con ID ' . $user->id . ' fue creado.',
         'ip_address' => $request->ip(),
     ]);
+    $correoController = new CorreoController();
+    $correoController->sendWelcomeEmail($user); 
 
     return redirect()->route('users.index')->with('success', 'Usuario creado correctamente');
 }
@@ -247,19 +252,15 @@ class UserController extends Controller
     Log::create([
         'user_id' => Auth::id(), // debe ser el usuario que realiza la acción
         'action' => 'Eliminación de usuario',
-        'details' => 'El usuario '.$user->name.' con ID ' . $user->id . ' fue eliminado con sus tareas, permisos y logs.',
+        'details' => 'El usuario '.$user->name.' con ID ' . $user->id . ' fue puesto como inactivo ',
         'ip_address' => request()->ip(),
     ]);
 
-    // Eliminar relaciones
-    $user->tasks()->delete();
-    $user->logs()->delete();
-    $user->roles()->detach();
-    $user->permissions()->detach();
+    $user->is_active = 0; // Cambiar el estado a inactivo
+    
+   
 
-    $user->delete();
-
-    return redirect()->back()->with('success', 'Usuario y sus datos relacionados fueron eliminados correctamente.');
+    return redirect()->back()->with('success', 'Usuario Puesto en Inactividad.');
 }
 
 }

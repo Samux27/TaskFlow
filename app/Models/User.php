@@ -93,4 +93,8 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'empleado_jefe',
             'employe_id', 'boss_id');
     }
+    public function createdTasks()
+{
+    return $this->hasMany(Task::class, 'boss_id');
+}
 }

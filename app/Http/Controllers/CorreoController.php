@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth; // Importa la clase Auth
 use App\Mail\NotificacionCorreo; // Asegúrate de que la ruta del Mail es correcta
 use Illuminate\Support\Facades\Mail; // Importa la clase Mail
 use App\Models\User; // Importa el modelo User si es necesario
+use Illuminate\Support\Facades\Storage; // Importa Storage si necesitas manejar archivos
+use App\Models\Comment; // Importa el modelo Comment si es necesario
+use App\Mail\WelcomeNotication; // Asegúrate de que la ruta del Mail es correcta
 class CorreoController extends Controller
 {
     /**
@@ -35,4 +38,21 @@ class CorreoController extends Controller
     ]);
         }
     }
+    public function sendWelcomeEmail($user)
+    {
+       if($user){
+         Mail::to($user->email)->send(new WelcomeNotication($user));
+
+         Log::create([
+        'user_id'    => Auth::id(),
+        'action'     => 'Mandar Correo de Bienvenida',
+        'details'    => 'Se ha enviado un correo de Bienvenida a : ' . $user->name ,
+        
+        'ip_address' => request()->ip(),
+    ]);
+       }
+        
+    
+    }
+
 }
