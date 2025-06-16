@@ -1,6 +1,5 @@
 <template>
   <AuthenticatedLayout>
-
     <Head title="Usuarios" />
 
     <div class="py-12">
@@ -10,9 +9,8 @@
 
           <!-- Botón -->
           <div class="mb-4 flex justify-between items-center">
-            <Link href="/users/create"
-              class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition">
-            Nuevo Usuario
+            <Link href="/users/create" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition">
+              Nuevo Usuario
             </Link>
             <button v-if="userRole === 'admin'" @click="exportUsers"
               class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-300">
@@ -43,9 +41,15 @@
                     {{ user.is_active ? 'Activo' : 'Inactivo' }}
                   </span>
                 </td>
-                <td>
-                  <Link :href="`/users/${user.id}/edit`" @click.stop class="text-indigo-600 hover:underline">Editar
-                  </Link> |
+                <td> 
+                  <Link
+  :href="route('admin.empleado.tareas', user.id)"
+  class="text-emerald-600 hover:underline"
+>
+  Ver tareas
+</Link>
+ |
+                  <Link :href="`/users/${user.id}/edit`" @click.stop class="text-indigo-600 hover:underline">Editar</Link> |
                   <button @click.stop="confirmDelete(user.id)"
                     class="text-rose-600 hover:underline ml-2">Marcar Inactivo</button>
                 </td>
@@ -59,7 +63,7 @@
       <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white p-6 rounded shadow-lg border border-gray-300 w-full max-w-md">
           <h3 class="text-lg font-semibold text-gray-800">¿Hibernar usuario?</h3>
-          <p class="text-gray-600 mt-2">Esta acción Marcara al usuario como inactivo y no permitira que acceda a la aplicacion..</p>
+          <p class="text-gray-600 mt-2">Esta acción marcará al usuario como inactivo y no podrá acceder a la aplicación.</p>
 
           <div class="mt-4 flex gap-4 justify-center">
             <button @click="deleteUser"
@@ -75,11 +79,14 @@
         <div class="bg-white p-6 rounded shadow-lg border border-gray-300 w-full max-w-3xl flex gap-6 relative">
           <!-- Avatar -->
           <div class="w-1/3 flex items-center justify-center">
-            <img v-if="selectedUser.avatar" :src="`/storage/avatars/${$page.props.auth.user.avatar}`" alt="Avatar"
-              class="w-32 h-32 rounded-full border object-cover" />
-            <div v-else
-              class="w-32 h-32 rounded-full border bg-gray-100 flex items-center justify-center text-4xl text-gray-500">
-               <img  :src="`/storage/avatars/default.png`" alt="Avatar" >
+            <img
+              v-if="selectedUser.avatar"
+              :src="`/storage/avatars/${selectedUser.avatar}`"
+              alt="Avatar"
+              class="w-32 h-32 rounded-full border object-cover"
+            />
+            <div v-else class="w-32 h-32 rounded-full border bg-gray-100 flex items-center justify-center overflow-hidden">
+              <img src="/storage/avatars/default.png" alt="Avatar por defecto" class="object-cover w-full h-full" />
             </div>
           </div>
 
@@ -122,30 +129,26 @@ const flash = usePage().props.flash
 if (flash?.success) {
   toast.success(flash.success)
 }
+
 const roleToEs = {
   admin: 'Administrador',
   boss: 'Jefe',
   employee: 'Empleado',
   user: 'Usuario',
-  
-};
-const tRole = (role) => roleToEs[(role || '').toLowerCase()] ?? role;
-/* ②  Función utilitaria */
+}
+const tRole = (role) => roleToEs[(role || '').toLowerCase()] ?? role
 
-// refs
 const showModal = ref(false)
 const showUserModal = ref(false)
 const userIdToDelete = ref(null)
 const userTable = ref(null)
 const selectedUser = ref({})
 
-// abrir modal de confirmación
 const confirmDelete = (id) => {
   userIdToDelete.value = id
   showModal.value = true
 }
 
-// eliminar usuario
 const deleteUser = () => {
   router.delete(`/users/${userIdToDelete.value}`, {
     onSuccess: () => {
@@ -155,10 +158,11 @@ const deleteUser = () => {
     }
   })
 }
+
 const exportUsers = () => {
-  window.open('/export-users', '_blank');
+  window.open('/export-users', '_blank')
 }
-// abrir modal de usuario
+
 const openUserModal = (user) => {
   selectedUser.value = user
   showUserModal.value = true

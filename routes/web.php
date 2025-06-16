@@ -24,28 +24,35 @@ Route::middleware([
     \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
     \Illuminate\Cookie\Middleware\EncryptCookies::class,
 ])->group(function () {
+    Route::get('/tareas-urgentes', [TaskController::class, 'tareasUrgentes'])
+    
+    ->name('tareas.urgentes');
    Route::get('/send-welcome-email/{name}', [CorreoController::class, 'sendWelcomeEmail']);
         
         Route::post('/task/{task}/comments', [CommentController::class, 'sendComment']);
 
-    // Ruta raíz: renderiza la vista de login
+  
     Route::get('/', function () {
         return Inertia::render('Auth/Login');
     });
 
     // Ruta de dashboard, solo accesible por usuarios autenticados y verificados
     Route::get('/dashboard', function () {
-        // Obtener el usuario autenticado
         $user = Auth::user();
+       if ($user->hasRole('boss') || $user->hasRole('employee')) {
+        app(TaskController::class)->revisarTareasUrgentes();
+    }
+        
+        
     
-        // Pasar el usuario a la vista de Inertia
+        
         return Inertia::render('Dashboard', [
-            'user' => $user,  // Pasa el usuario completo, incluyendo la propiedad avatar
+            'user' => $user,  
         ]);
     })->middleware(['auth', 'verified'])->name('dashboard');
-    // Grupo de rutas que requieren autenticación
+    
     Route::middleware('auth')->group(function () {
-        //listar y ver tareas del empleado autenticado (jefes y empleados)
+       
          Route::post('mis-tareas', [TaskController::class, 'storeSelf'])
                       ->name('employee.tasks.store');
          Route::get('mis-tareas', [TaskController::class, 'employeeIndex'])
@@ -72,7 +79,7 @@ Route::middleware([
         //Rutas para los administradores
         
         Route::middleware(['role_or_permission:admin'])->group(function () {
-           
+        Route::get('/empleado/{empleado}/tareas', [BossController::class, 'verTareasEmpleado'])   ->name('admin.empleado.tareas');
         Route::get('/export-users', [ExportTaskController::class, 'exportUsers'])->name('users.export');
         Route::get('/export-tasks', [ExportTaskController::class, 'export'])->name('tasks.export');
 

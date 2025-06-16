@@ -7,20 +7,27 @@
         <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
           <h2 class="text-xl font-bold text-gray-800 mb-4">Historial de Logs</h2>
 
-          <table ref="logTable" class=" w-full border border-gray-300" style="width:100%">
+          <table ref="logTable" class="w-full border border-gray-300" style="width:100%">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Usuario Id</th>
+                <th>Tipo</th>
                 <th>Usuario</th>
                 <th>Acción</th>
                 <th>Fecha</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="log in logs" :key="log.id" @click="mostrarLog(log)" class="cursor-pointer hover:bg-gray-100">
-                <td>{{ log.id }}</td>
+              <tr
+                v-for="log in logs"
+                :key="log.id"
+                @click="!esMovil && mostrarLog(log)"
+                :class="[
+                  esMovil ? '' : 'cursor-pointer hover:bg-gray-100'
+                ]"
+              >
                 <td>{{ log.user_id ?? 'Desconocido' }}</td>
+                <td>{{ log.action }}</td>
                 <td>{{ log.user?.name ?? 'Desconocido' }}</td>
                 <td>{{ log.details }}</td>
                 <td>{{ formatDate(log.created_at) }}</td>
@@ -36,7 +43,6 @@
       <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg border border-gray-300">
         <h3 class="text-lg font-semibold text-gray-800 mb-2">Detalles del Log</h3>
         <div class="text-sm text-gray-700 space-y-2">
-          
           <p><strong>Usuario ID:</strong> {{ logSeleccionado.user_id ?? 'Desconocido' }}</p>
           <p><strong>Nombre de Usuario:</strong> {{ logSeleccionado.user?.name ?? 'Desconocido' }}</p>
           <p><strong>Acción:</strong> {{ logSeleccionado.action }}</p>
@@ -67,6 +73,7 @@ const logTable = ref(null)
 
 const mostrarModal = ref(false)
 const logSeleccionado = ref({})
+const esMovil = ref(false)
 
 const mostrarLog = (log) => {
   logSeleccionado.value = log
@@ -83,10 +90,11 @@ const formatDate = (fecha) => {
 }
 
 onMounted(() => {
+  esMovil.value = window.innerWidth < 768
+
   $(logTable.value).DataTable({
-    order: [[5, 'desc']], // Ordenar por fecha descendente 
+    order: [[5, 'desc']],
     responsive: true,
-    
     info: false,
     lengthChange: false,
     pageLength: 10,
@@ -97,7 +105,13 @@ onMounted(() => {
         previous: "Anterior",
         next: "Siguiente"
       }
-    }
+    },
+    columnDefs: [
+    { targets: 0, responsivePriority: 2 }, // Usuario ID
+    { targets: 1, className: 'all'}, // Tipo
+    { targets: 2, className: 'all' },     // Usuario (nunca ocultar)
+    { targets: 4, className: 'all' },     // Fecha (nunca ocultar)
+  ]
   })
 })
 </script>

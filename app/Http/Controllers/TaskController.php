@@ -20,7 +20,11 @@ use App\Models\Attachment;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Mail\NotificacionCorreo;
+use App\Mail\TareaUrgente;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\CorreoController; // Asegúrate de que la ruta del controlador es correcta
+// Asegúrate de que la ruta del Request es correcta
+
 class TaskController extends Controller
 {
     /**
@@ -63,7 +67,7 @@ public function store(Request $request)
     $request->validate([
         'title'           => 'required|string|max:255',
         'description'     => 'required|string',
-        'assigned_users'  => 'required|array|min:1',
+        'assigned_users'  => 'required|array|min:0',
         'assigned_users.*'=> 'exists:users,id',
         'create_date'     => 'required|date',
         'deadLine'        => 'nullable|date|after_or_equal:create_date',
@@ -98,7 +102,7 @@ public function store(Request $request)
 
     /* 4️⃣  Relación muchos-a-muchos */
     $task->assignedUsers()->sync($request->assigned_users);
- // obtiene los correos de los usuarios asignados y les manda el correo de que tienen una tarea nueva 
+    // obtiene los correos de los usuarios asignados y les manda el correo de que tienen una tarea nueva 
     $correoController = new CorreoController();
     $correoController->sendTaskCreatedEmail($task); 
     /* 5️⃣  Log */
@@ -314,6 +318,68 @@ public function updateStatus(Request $request, Task $task)
     $task->save();
 
     return redirect()->back()->with('success', 'Estado de la tarea actualizado.');
+}public function revisarTareasUrgentes()
+{
+    $mañana = now()->addDay();
+
+    $tareas = Task::where('estado', '!=', 'finalizada')
+        ->whereDate('deadLine', '<=', $mañana)
+        ->whereDate('deadLine', '>=', now())
+        ->get();
+
+    foreach ($tareas as $tarea) {
+        // Saltar si ya se notificó hace menos de 6 horas
+        if ($tarea->last_notified_at && $tarea->last_notified_at->diffInHours(now()) < 6) {
+            continue;
+        }
+
+        // Enviar correos a los usuarios asignados
+        foreach ($tarea->assignedUsers as $user) {
+            Mail::to($user->email)->send(new TareaUrgente($tarea));
+
+            Log::create([
+                'user_id' => Auth::id(),
+                'action' => 'Revisión de tareas urgentes',
+                'details' => 'Se ha notificado a ' . $user->name .
+                    ' (ID: ' . $user->id . ') sobre la tarea: ' . $tarea->title .
+                    ' (ID: ' . $tarea->id . ')',
+                'ip_address' => request()->ip(),
+            ]);
+        }
+
+        // ✅ Actualizar solo si se notificó
+        $tarea->last_notified_at = now();
+        $tarea->save();
+    }
 }
+
+public function tareasUrgentes()
+{
+    $mañana = now()->addDay();
+    $usuario = auth()->user();
+    $rol = $usuario->getRoleNames()->first();
+
+    
+    $consulta = Task::where('estado', '!=', 'finalizada')
+        ->whereBetween('deadLine', [now(), $mañana]);
+
+   
+    if ($rol !== 'admin') {
+        $consulta->whereHas('assignedUsers', function ($q) use ($usuario) {
+            $q->where('user_id', $usuario->id);
+        });
+    }
+
+    $tareas = $consulta->orderBy('deadLine', 'asc')->get();
+
+    return Inertia::render('Admin/User/TaskUrgente', [
+        'tareas' => $tareas,
+        'userRole' => $rol,
+    ]);
+}
+
+
+
+
 
 }

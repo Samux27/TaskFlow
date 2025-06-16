@@ -49,7 +49,12 @@ public function storeTaskForEmployee(Request $request, User $empleado)
     ]);
 
     $task->assignedUsers()->attach($empleado->id);
-
+Log::create([
+        'user_id' => Auth::id(),
+        'action' => 'Jefe creo una tarea para empleado',
+        'details' => 'Jefe ' . Auth::user()->name . ' ha creado una tarea para el empleado: ' . $empleado->name . ' (ID: ' . $empleado->id . ') con título: ' . $task->title,
+        'ip_address' => $request->ip(),
+    ]);
     return redirect()->route('boss.empleado.tareas', $empleado->id)->with('success', 'Tarea creada correctamente');
 }
     /**
@@ -114,25 +119,13 @@ public function empleadosAsignados()
         'empleados' => $empleados,
         'userRole' => auth()->user()->getRoleNames()->first()
     ]);
-}
-public function verTareasEmpleado(User $empleado)
+}public function verTareasEmpleado(User $empleado)
 {
-    $bossId = auth()->id();
-
-    // Verifica que el jefe tenga acceso a este empleado
-    $tienePermiso = DB::table('empleado_jefe')
-        ->where('boss_id', $bossId)
-        ->where('employe_id', $empleado->id)
-        ->exists();
-
-    if (!$tienePermiso) {
-        abort(403);
-    }
-
-    $tareas = Task::where('boss_id', $bossId)
-        ->whereHas('assignedUsers', fn($q) => $q->where('user_id', $empleado->id))
-        ->orderByDesc('create_date')
-        ->get();
+    $tareas = Task::whereHas('assignedUsers', function ($q) use ($empleado) {
+        $q->where('user_id', $empleado->id);
+    })
+    ->orderByDesc('create_date')
+    ->get();
 
     return inertia('Boss/EmpleadoTareas', [
         'empleado' => $empleado,
@@ -140,4 +133,5 @@ public function verTareasEmpleado(User $empleado)
         'userRole' => auth()->user()->getRoleNames()->first()
     ]);
 }
+
 }

@@ -7,16 +7,21 @@
         <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
 
           <!-- Botón Volver -->
-          <div class="mb-4">
-            <Link href="/mis-empleados" class="text-gray-500 hover:text-indigo-600 transition">
-              ← Volver a empleados
-            </Link>
-          </div>
+          <<!-- Botón Volver -->
+<div class="mb-4">
+  <Link
+    :href="userRole === 'admin' ? '/users' : '/mis-empleados'"
+    class="text-gray-500 hover:text-indigo-600 transition"
+  >
+    ← Volver 
+  </Link>
+</div>
 
           <!-- Título + botón crear tarea -->
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-bold text-gray-800">Tareas asignadas a {{ empleado.name }}</h2>
 <Link
+v-if="userRole === 'boss' "
   :href="`/mis-empleados/${empleado.id}/tareas/crear`"
   class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
 >

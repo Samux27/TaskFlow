@@ -116,7 +116,7 @@ const showingNavigationDropdown = ref(false);
                   </template>
 
                   <template #content>
-                    <DropdownLink :href="route('profile.edit')">Profile</DropdownLink>
+                    
                     <DropdownLink :href="route('logout')" method="post" as="button">Log Out</DropdownLink>
                   </template>
                 </Dropdown>
@@ -141,9 +141,29 @@ const showingNavigationDropdown = ref(false);
         <!-- Responsive Navigation Menu -->
         <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }" class="sm:hidden">
           <div class="space-y-1 pb-3 pt-2">
-            <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-              Dashboard
-            </ResponsiveNavLink>
+           <ResponsiveNavLink v-if="roles.includes('admin')" :href="route('log.index')" :active="route().current('log.index')">
+    Logs
+  </ResponsiveNavLink>
+
+  <ResponsiveNavLink v-if="roles.includes('admin')" :href="route('users.index')" :active="route().current('users.index')">
+    Usuarios
+  </ResponsiveNavLink>
+
+  <ResponsiveNavLink v-if="roles.includes('admin')" :href="route('task.index')" :active="route().current('task.index')">
+    Tareas
+  </ResponsiveNavLink>
+
+  <ResponsiveNavLink v-if="!roles.includes('admin')" :href="route('employee.tasks.index')" :active="route().current('employee.tasks.index')">
+    Mis tareas
+  </ResponsiveNavLink>
+
+  <ResponsiveNavLink v-if="roles.includes('admin')" :href="route('boss-employee.index')" :active="route().current('boss-employee.index')">
+    Asignar empleados
+  </ResponsiveNavLink>
+
+  <ResponsiveNavLink v-if="roles.includes('boss')" :href="route('boss.empleados')" :active="route().current('boss.empleados')">
+    Empleados
+  </ResponsiveNavLink>
           </div>
 
           <!-- Responsive Settings Options -->
@@ -158,7 +178,7 @@ const showingNavigationDropdown = ref(false);
             </div>
 
             <div class="mt-3 space-y-1">
-              <ResponsiveNavLink :href="route('profile.edit')">Profile</ResponsiveNavLink>
+              
               <ResponsiveNavLink :href="route('logout')" method="post" as="button">Log Out</ResponsiveNavLink>
             </div>
           </div>

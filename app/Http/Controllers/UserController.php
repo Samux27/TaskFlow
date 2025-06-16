@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\CorreoController; // Asegúrate de que la ruta del controlador es correcta
 use Illuminate\Support\Facades\DB;
 
+
 class UserController extends Controller
 {
     /**
@@ -39,7 +40,7 @@ class UserController extends Controller
         ->get()
         ->map(function ($user) {
             $user->role = $user->roles->pluck('name')->first(); // Get the first role name
-            return $user->only(['id', 'name', 'surname', 'email', 'dni', 'role', 'is_active']);
+            return $user->only(['id', 'name', 'surname', 'email', 'dni', 'role', 'is_active','avatar']);
         });
     
     return Inertia::render('Admin/User/ListUsers', [
@@ -241,6 +242,7 @@ class UserController extends Controller
      */
     public function destroy($id)
 {
+    //soft delete: poner el usuario como inactivo
     $user = User::findOrFail($id);
 
     // No permitir que un usuario se elimine a sí mismo
